@@ -1,0 +1,23 @@
+"use client"
+
+import { cn } from "@/lib/utils"
+
+interface LoadingSpinnerProps {
+  size?: "sm" | "md" | "lg"
+  className?: string
+}
+
+export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
+  const sizeClasses = {
+    sm: "h-4 w-4",
+    md: "h-6 w-6", 
+    lg: "h-8 w-8"
+  }
+
+  return (
+    <div className={cn("relative", sizeClasses[size], className)}>
+      <div className="absolute inset-0 rounded-full border-2 border-purple-200 dark:border-purple-800"></div>
+      <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-600 animate-spin"></div>
+    </div>
+  )
+}
