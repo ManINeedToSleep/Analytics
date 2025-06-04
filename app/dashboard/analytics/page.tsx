@@ -15,6 +15,7 @@ import { EngagementFunnel } from "@/components/analytics/engagement-funnel"
 import { AIInsightsPanels } from "@/components/analytics/ai-insights-panels"
 import { FadeIn } from "@/components/ui/fade-in"
 import { useToast } from "@/hooks/use-toast"
+import { PageHeader } from "@/components/ui/page-header"
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState("30d")
@@ -32,17 +33,11 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen w-full">
       <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-6 max-w-full">
-        <FadeIn>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Advanced Analytics
-              </h1>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                Deep insights into user behavior, engagement patterns, and platform performance
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
+        <PageHeader 
+          title="Advanced Analytics"
+          description="Deep insights into user behavior, engagement patterns, and platform performance"
+          actions={
+            <>
               <Button onClick={exportData} variant="outline" size="sm">
                 <Download className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Export Data</span>
@@ -51,9 +46,9 @@ export default function AnalyticsPage() {
                 <Filter className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Advanced Filters</span>
               </Button>
-            </div>
-          </div>
-        </FadeIn>
+            </>
+          }
+        />
 
         {/* Filters */}
         <FadeIn delay={100}>

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
+import { PageHeader } from "@/components/ui/page-header"
 
 export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true)
@@ -31,10 +32,10 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen w-full">
       <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-6 max-w-full">
-        <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">Manage your RYLYTICS dashboard preferences and configurations</p>
-        </div>
+        <PageHeader 
+          title="Settings"
+          description="Manage your RYLYTICS dashboard preferences and configurations"
+        />
 
         <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">

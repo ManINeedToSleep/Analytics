@@ -1,86 +1,123 @@
+/**
+ * @file overview-card.tsx
+ * @description A card component for displaying overview metrics with a title, value, description, icon, and trend.
+ * It supports an accent color for a top border highlight and uses a dark theme.
+ */
 import type React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { FadeIn } from "@/components/ui/fade-in"
 import { cn } from "@/lib/utils"
+import {
+  Users, Building, UserCheck, Calendar, Activity, TrendingUp, Zap, BarChart3,
+  UserPlus, Percent, DollarSign, // Added new icons
+  Icon as LucideIcon // Generic Icon type
+} from "lucide-react"
+
+// Icon mapping
+const iconComponents: { [key: string]: LucideIcon } = {
+  Users,
+  Building,
+  UserCheck,
+  Calendar,
+  Activity,
+  TrendingUp,
+  Zap,
+  BarChart3,
+  UserPlus,   // Added UserPlus
+  Percent,    // Added Percent
+  DollarSign, // Added DollarSign
+}
 
 interface OverviewCardProps {
   title: string
   value: string | number
   description?: string
-  icon: React.ReactNode
+  iconName: string // Changed from React.ReactNode to string key for icon map
   trend?: {
     value: number
     isPositive: boolean
   }
   delay?: number
-  gradient?: "purple" | "blue" | "green" | "amber" | "red"
+  accentColor?: "purple" | "blue" | "green" | "amber" | "teal" // Added teal
+  wrapperClassName?: string; // I'm adding this prop
 }
 
 export function OverviewCard({ 
   title, 
   value, 
   description, 
-  icon, 
+  iconName, 
   trend, 
   delay = 0,
-  gradient = "purple"
+  accentColor,
+  wrapperClassName, // I'm destructuring the new prop
 }: OverviewCardProps) {
   const numericValue = typeof value === 'string' ? 
-    parseInt(value.replace(/[^0-9]/g, '')) : value
+    parseFloat(value.replace(/[^0-9.]/g, '')) : value
+  const valueSuffix = typeof value === 'string' ? value.replace(/[0-9.,]/g, '') : ''
 
-  const gradients = {
-    purple: "from-purple-500/10 to-purple-600/5 border-purple-500/20 hover:shadow-purple-500/20",
-    blue: "from-blue-500/10 to-blue-600/5 border-blue-500/20 hover:shadow-blue-500/20",
-    green: "from-green-500/10 to-green-600/5 border-green-500/20 hover:shadow-green-500/20",
-    amber: "from-amber-500/10 to-amber-600/5 border-amber-500/20 hover:shadow-amber-500/20",
-    red: "from-red-500/10 to-red-600/5 border-red-500/20 hover:shadow-red-500/20"
+  const IconComponent = iconComponents[iconName] || Users
+
+  const accentClasses: { [key: string]: string } = {
+    purple: "border-t-purple-500",
+    blue: "border-t-blue-500",
+    green: "border-t-green-500",
+    amber: "border-t-amber-500",
+    teal: "border-t-teal-500", // Added teal border
   }
 
   return (
-    <FadeIn delay={delay} direction="up">
-      <Card className={cn(
-        "relative overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl group cursor-pointer",
-        "bg-gradient-to-br border backdrop-blur-sm",
-        gradients[gradient]
-      )}>
-        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+    <FadeIn delay={delay} direction="up" className={wrapperClassName}>
+      <Card
+        className={cn(
+          "bg-neutral-900 text-white rounded-lg shadow-md p-5 flex flex-col justify-between h-full", // Dark theme, padding, flex layout
+          "border border-neutral-700/50 transition-all duration-300 hover:border-neutral-600/80 hover:bg-neutral-800/60", // Subtle border and hover
+          accentColor && accentClasses[accentColor] ? `${accentClasses[accentColor]} border-t-4` : "border-t-4 border-t-transparent" // Top accent border
+        )}
+      >
+        <CardHeader className="flex flex-row items-start justify-between p-0 mb-3">
+          <CardTitle className="text-sm font-medium text-neutral-400">
             {title}
           </CardTitle>
-          <div className="h-4 w-4 text-muted-foreground group-hover:scale-110 transition-transform duration-300">
-            {icon}
-          </div>
+          <IconComponent className={cn(
+            "h-5 w-5 text-neutral-500",
+            accentColor && {
+              "purple": "text-purple-500",
+              "blue": "text-blue-500",
+              "green": "text-green-500",
+              "amber": "text-amber-500",
+              "teal": "text-teal-500", // Added teal icon color
+            }[accentColor]
+          )} />
         </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="text-lg sm:text-xl lg:text-2xl font-bold group-hover:scale-105 transition-transform duration-300">
+        <CardContent className="p-0 flex flex-col flex-grow">
+          <div className="text-3xl font-bold text-white mb-1">
             {typeof value === 'string' && !isNaN(numericValue) ? (
-              <AnimatedCounter 
-                end={numericValue} 
-                suffix={value.replace(/[0-9]/g, '')} 
-              />
+              <AnimatedCounter end={numericValue} suffix={valueSuffix} decimals={valueSuffix === '%' ? 1 : 0} />
             ) : (
               value
             )}
           </div>
           {description && (
-            <p className="text-xs text-muted-foreground mt-1 group-hover:text-muted-foreground/80 transition-colors">
+            <p className="text-xs text-neutral-400 mb-2 flex-grow">
               {description}
             </p>
           )}
           {trend && (
-            <div className="mt-2 flex items-center text-xs">
-              <span className={cn(
-                "font-medium transition-colors",
-                trend.isPositive 
-                  ? "text-green-600 dark:text-green-400" 
-                  : "text-red-600 dark:text-red-400"
-              )}>
-                {trend.isPositive ? "+" : "-"}
+            <div className="flex items-center text-xs mt-auto">
+              <span
+                className={cn(
+                  "font-medium",
+                  trend.isPositive
+                    ? "text-green-400"
+                    : "text-red-400"
+                )}
+              >
+                {trend.isPositive ? "+" : ""}
                 {Math.abs(trend.value)}%
               </span>
-              <span className="ml-1 text-muted-foreground">from last period</span>
+              <span className="ml-1.5 text-neutral-500">from 2 days ago</span>
             </div>
           )}
         </CardContent>
