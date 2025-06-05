@@ -1,0 +1,737 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id                    String          @id @default(uuid())
+  name                  String
+  email                 String          @unique
+  phoneNumber           String?
+  isEmailVerified       Boolean         @default(false)
+  isAccountActivated    Boolean         @default(false)
+  isPhoneVerified       Boolean         @default(false)
+  stripeSessionId       String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  deletedAt             DateTime?
+  isDeleted             Boolean         @default(false)
+  profile               UserProfiles[]  @relation("UserProfiles")
+  connections           Connections[]   @relation("UserConnection")
+  connectionsInvited    Connections[]   @relation("InvitedConnection")
+  actorLogs             Logs[]          @relation("ActorLogs")
+  relationLogs          Logs[]          @relation("RelationLogs")
+  subscriptions         Subscriptions[]
+  actorNotifications    Notifications[] @relation("ActorNotifications")
+  relationNotifications Notifications[] @relation("RelationNotifications")
+  googleSocialId        String?
+  isSetupEmailSent      Boolean         @default(false)
+}
+
+model UserProfiles {
+  id                 String  @id @default(uuid())
+  user               Users   @relation("UserProfiles", fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  avatar             String?
+  title              String?
+  company            String?
+  website            String?
+  headline           String?
+  profileEmail       String?
+  profileUrl         String?
+  profilePhoneNumber String?
+  profileName        String?
+  isEmailVerified    Boolean @default(false)
+  isPhoneVerified    Boolean @default(false)
+  isProfileActivated Boolean @default(false)
+  isProfileProcessed Boolean @default(false)
+  isProfilePrivate   Boolean @default(false)
+  about              String?
+  linkedInUrl        String?
+  twitterUrl         String?
+  instagramUrl       String?
+  otherUrl           String?
+  dribbleUrl         String?
+  githubUrl          String?
+  mediumUrl          String?
+  calendlyUrl        String?
+  linktreeUrl        String?
+
+  soundcloudUrl String?
+  vimeoUrl      String?
+  stravaUrl     String?
+  tiktokUrl     String?
+  youtubeUrl    String?
+  discordUrl    String?
+  slackUrl      String?
+  blueskyUrl    String?
+  pintrestUrl   String?
+  telegramUrl   String?
+  redditUrl     String?
+  threadsUrl    String?
+  whatsappUrl   String?
+  spotifyUrl    String?
+  facebookUrl   String?
+
+  showSoundcloudUrl            Boolean                @default(true)
+  showVimeoUrl                 Boolean                @default(true)
+  showStravaUrl                Boolean                @default(true)
+  showTiktokUrl                Boolean                @default(true)
+  showYoutubeUrl               Boolean                @default(true)
+  showDiscordUrl               Boolean                @default(true)
+  showSlackUrl                 Boolean                @default(true)
+  showBlueskyUrl               Boolean                @default(true)
+  showPintrestUrl              Boolean                @default(true)
+  showTelegramUrl              Boolean                @default(true)
+  showRedditUrl                Boolean                @default(true)
+  showThreadsUrl               Boolean                @default(true)
+  showWhatsappUrl              Boolean                @default(true)
+  showSpotifyUrl               Boolean                @default(true)
+  showfacebookUrl              Boolean                @default(true)
+  countryCode                  String?
+  showWebsiteUrl               Boolean                @default(true)
+  showLinkedInUrl              Boolean                @default(true)
+  showTwitterUrl               Boolean                @default(true)
+  showInstagramUrl             Boolean                @default(true)
+  showOtherUrl                 Boolean                @default(true)
+  showDribbleUrl               Boolean                @default(true)
+  showGithubUrl                Boolean                @default(true)
+  showMediumUrl                Boolean                @default(true)
+  showCalendlyUrl              Boolean                @default(true)
+  showLinktreeUrl              Boolean                @default(true)
+  location                     String?
+  connectionCount              Int                    @default(0)
+  profileRequestCount          Int                    @default(0)
+  profileInviteSentCount       Int                    @default(0)
+  profileRequestSentCount      Int                    @default(0)
+  noteCount                    Int                    @default(0)
+  accountType                  UserAccountType        @default(INVITE)
+  createdAt                    DateTime               @default(now())
+  updatedAt                    DateTime               @updatedAt
+  communityProfileConnections  CommunityConnections[] @relation("CommunityProfileConnections")
+  communityProfileInvited      CommunityConnections[] @relation("CommunityProfileInvitations")
+  profileCommunities           Communities[]          @relation("ProfileCommunities")
+  pventParticipantProfile      EventParticipants[]    @relation("EventParticipantProfile")
+  profileEvents                EventLink[]            @relation("profileEvents")
+  connections                  ProfileConnections[]   @relation("UserConnection")
+  connectionsInvited           ProfileConnections[]   @relation("InvitedConnection")
+  logs                         Logs[]                 @relation("ActorProfileLogs")
+  logsRelated                  Logs[]                 @relation("RelationProfileLogs")
+  notifications                Notifications[]        @relation("ActorProfileNotifications")
+  relatedNotifications         Notifications[]        @relation("RelationProfileNotifications")
+  creatorNotes                 Notes[]                @relation("CreatorNotes")
+  relationNotes                Notes[]                @relation("RelationNotes")
+  profileSubscriptions         Subscriptions[]        @relation("ProfileSubscriptions")
+  planTrials                   PlanTrials?
+  communitySenderReferrals     CommunityReferrals[]   @relation("CommunitySenderReferrals")
+  communityConnectionReferrals CommunityReferrals[]   @relation("CommunityConnectionReferrals")
+  profileUnlinkEvents          UnlinkEvents[]         @relation("ProfileUnlinkedEvents")
+  getStreamId                  String?
+  eventReferrals               EventReferrals[]       @relation("EventSenderReferrals")
+  linkedInGroupUrl             String?
+  showLinkedInGroupUrl         Boolean                @default(true)
+  sidejawnUrl                  String?
+  showSidejawnUrl              Boolean                @default(true)
+
+  @@map("UserProfiles")
+}
+
+model Connections {
+  id           String           @id @default(uuid())
+  user         Users            @relation("UserConnection", fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  connection   Users            @relation("InvitedConnection", fields: [connectionId], references: [id], onDelete: Cascade)
+  connectionId String
+  status       ConnectionStatus @default(CONNECTED)
+  location     Json?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([userId, connectionId])
+}
+
+model ProfileConnections {
+  id                         String           @id @default(uuid())
+  user                       UserProfiles     @relation("UserConnection", fields: [userId], references: [id], onDelete: Cascade)
+  userId                     String
+  connection                 UserProfiles     @relation("InvitedConnection", fields: [connectionId], references: [id], onDelete: Cascade)
+  connectionId               String
+  status                     ConnectionStatus @default(PENDING)
+  requestType                String?
+  location                   Json?
+  communityReferralSent      Boolean          @default(false)
+  communityEventReferralSent Boolean          @default(false)
+  profileEventReferralSent   Boolean          @default(false)
+  createdAt                  DateTime         @default(now())
+  updatedAt                  DateTime         @updatedAt
+}
+
+model AnalyticStats {
+  id                         String   @id
+  profileCreated             Int      @default(0)
+  accountCreated             Int      @default(0)
+  accountActivated           Int      @default(0)
+  communityCreated           Int      @default(0)
+  eventCreated               Int      @default(0)
+  eventUpdated               Int      @default(0)
+  profileeventparticipants   Int      @default(0)
+  communityeventparticipants Int      @default(0)
+  scannedProfile             Int      @default(0)
+  manualProfile              Int      @default(0)
+  createProfile              Int      @default(0)
+  subscriptions              Int      @default(0)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@map("AnalyticStats")
+}
+
+model Logs {
+  id               String        @id @default(uuid())
+  actor            Users         @relation("ActorLogs", fields: [actorId], references: [id], onDelete: Cascade)
+  actorId          String
+  description      String?
+  actionType       LogActionType
+  relation         Users?        @relation("RelationLogs", fields: [relatedId], references: [id], onDelete: Cascade)
+  relatedId        String?
+  actorProfile     UserProfiles? @relation("ActorProfileLogs", fields: [actorProfileId], references: [id], onDelete: Cascade)
+  actorProfileId   String?
+  relatedProfile   UserProfiles? @relation("RelationProfileLogs", fields: [relatedProfileId], references: [id], onDelete: Cascade)
+  relatedProfileId String?
+  createdAt        DateTime      @default(now())
+
+  @@map("Logs")
+}
+
+model Admins {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  isDeleted Boolean   @default(false)
+}
+
+model Notes {
+  id               String       @id @default(uuid())
+  creatorProfile   UserProfiles @relation("CreatorNotes", fields: [creatorProfileId], references: [id], onDelete: Cascade)
+  creatorProfileId String
+  description      String?
+  images           String[]
+  relationProfile  UserProfiles @relation("RelationNotes", fields: [relatedProfileId], references: [id], onDelete: Cascade)
+  relatedProfileId String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("Notes")
+}
+
+model PlanTrials {
+  id                String       @id @default(uuid())
+  user              UserProfiles @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId     String       @unique
+  name              String
+  trialEnd          DateTime
+  trialEndEmailSent Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+
+  @@map("PlanTrials")
+}
+
+model Subscriptions {
+  id                       String              @id @default(uuid())
+  user                     Users               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                   String
+  profile                  UserProfiles?       @relation("ProfileSubscriptions", fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                String?
+  community                Communities?        @relation("CommunitySubscriptions", fields: [communityId], references: [id], onDelete: Cascade)
+  communityId              String?
+  amountSubTotal           Int
+  amountTax                Int
+  amountTotal              Int
+  amountDiscount           Int
+  stripeCustomerId         String
+  stripeSubscriptionId     String
+  paymentStatus            String
+  subscriptionType         SubscriptionType
+  subscriptionSubType      SubscriptionSubType
+  paymentMetadata          Json?
+  planId                   String
+  plan                     Plans               @relation(fields: [planId], references: [id], onDelete: Cascade)
+  isSubscriptionCancelled  Boolean             @default(false)
+  subscriptionCancelledAt  DateTime?
+  isSubscriptionDowngrade  Boolean             @default(false)
+  subscriptionDowngradedAt DateTime?
+  renewAt                  DateTime
+  createdAt                DateTime            @default(now())
+
+  @@map("Subscriptions")
+}
+
+model Plans {
+  id              String          @id @default(uuid())
+  name            String
+  price           Int             @default(0)
+  stripePlanId    String
+  stripePriceId   String
+  description     String
+  features        Json
+  feature1        String?
+  feature2        String?
+  feature3        String?
+  feature4        String?
+  feature5        String?
+  feature6        String?
+  planType        PlanType
+  planSubType     PlanSubType
+  discountRate    Int             @default(0)
+  discountEndsAt  DateTime?
+  renewTimeInDays Int?            @default(0)
+  subscriptions   Subscriptions[]
+  createdAt       DateTime        @default(now())
+
+  @@map("Plans")
+}
+
+model Notifications {
+  id                            String                @id @default(uuid())
+  actor                         Users                 @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  actorId                       String
+  description                   String?
+  notificationType              String
+  notificationSubType           String?
+  relation                      Users?                @relation("RelationNotifications", fields: [relationId], references: [id], onDelete: Cascade)
+  relationId                    String?
+  status                        NotificationStatus    @default(UNREAD)
+  actorProfile                  UserProfiles?         @relation("ActorProfileNotifications", fields: [actorProfileId], references: [id], onDelete: Cascade)
+  actorProfileId                String?
+  relationProfile               UserProfiles?         @relation("RelationProfileNotifications", fields: [relationProfileId], references: [id], onDelete: Cascade)
+  relationProfileId             String?
+  communityConnection           CommunityConnections? @relation("CommunityConnectionNotifications", fields: [relationcommunityConnectionId], references: [id], onDelete: Cascade)
+  relationcommunityConnectionId String?
+  communitylink                 Communities?          @relation("CommunityLinkNotifications", fields: [relationcommunityLinkId], references: [id], onDelete: Cascade)
+  relationcommunityLinkId       String?
+  values                        Json?
+  createdAt                     DateTime              @default(now())
+  updatedAt                     DateTime              @updatedAt
+
+  actorCommunityId    String?
+  actorCommunity      Communities? @relation("ActorCommunityNotifications", fields: [actorCommunityId], references: [id], onDelete: Cascade)
+  relationCommunityId String?
+  relationCommunity   Communities? @relation("RelationCommunityNotifications", fields: [relationCommunityId], references: [id], onDelete: Cascade)
+  eventId             String?
+  event               Events?      @relation("EventNotifications", fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("Notifications")
+}
+
+model Communities {
+  id                         String                 @id @default(uuid())
+  profileCommunities         UserProfiles           @relation("ProfileCommunities", fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                  String
+  CommunityConnections       CommunityConnections[] @relation("CommunityConnections")
+  CommunityLinkNotifications Notifications[]        @relation("CommunityLinkNotifications")
+  actorNotifications         Notifications[]        @relation("ActorCommunityNotifications")
+  relationNotifications      Notifications[]        @relation("RelationCommunityNotifications")
+  communityEvents            EventLink[]            @relation("communityEvents")
+  avatar                     String?
+  about                      String?
+  title                      String?
+  cardName                   String
+  website                    String?
+  headline                   String?
+  email                      String?
+  phoneNumber                String?
+  slug                       String?
+  communityType              String?
+  location                   String?
+  linkedInUrl                String?
+  twitterUrl                 String?
+  instagramUrl               String?
+  otherUrl                   String?
+  dribbleUrl                 String?
+  githubUrl                  String?
+  mediumUrl                  String?
+  calendlyUrl                String?
+  linktreeUrl                String?
+  countryCode                String?
+  Soundcloud                 String?
+  Vimeo                      String?
+  Strava                     String?
+  TikTok                     String?
+  YouTube                    String?
+  Discord                    String?
+  Slack                      String?
+  Bluesky                    String?
+  Pinterest                  String?
+  Telegram                   String?
+  Reddit                     String?
+  Threads                    String?
+  WhatsApp                   String?
+  Spotify                    String?
+  showWebsiteUrl             Boolean                @default(true)
+  showLinkedInUrl            Boolean                @default(true)
+  showTwitterUrl             Boolean                @default(true)
+  showInstagramUrl           Boolean                @default(true)
+  showOtherUrl               Boolean                @default(true)
+  showDribbleUrl             Boolean                @default(true)
+  showGithubUrl              Boolean                @default(true)
+  showMediumUrl              Boolean                @default(true)
+  showCalendlyUrl            Boolean                @default(true)
+  showLinktreeUrl            Boolean                @default(true)
+  showSoundcloud             Boolean                @default(true)
+  showVimeo                  Boolean                @default(true)
+  showStrava                 Boolean                @default(true)
+  showTikTok                 Boolean                @default(true)
+  showYouTube                Boolean                @default(true)
+  showDiscord                Boolean                @default(true)
+  showSlack                  Boolean                @default(true)
+  showBluesky                Boolean                @default(true)
+  showPinterest              Boolean                @default(true)
+  showTelegram               Boolean                @default(true)
+  showReddit                 Boolean                @default(true)
+  showThreads                Boolean                @default(true)
+  showWhatsApp               Boolean                @default(true)
+  showSpotify                Boolean                @default(true)
+  memberCount                Int                    @default(0)
+  communityCount             Int                    @default(0)
+  communityRequestCount      Int                    @default(0)
+  communityInviteSentCount   Int                    @default(0)
+  eventReferralSent          Boolean                @default(false)
+  isPrivate                  Boolean                @default(false)
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
+  communitySubscriptions     Subscriptions[]        @relation("CommunitySubscriptions")
+  isCommunityActivated       Boolean                @default(false)
+  channelId                  String?
+  notificationData           Json?
+  communityReferrals         CommunityReferrals[]   @relation("CommunityReferrals")
+  communityUnlinkEvents      UnlinkEvents[]         @relation("CommunityUnlinkedEvents")
+  eventData                  Json?
+  eventSentReferrals         EventReferrals[]       @relation("EventSenderReferrals")
+  eventReferrals             EventReferrals[]       @relation("EventReferrals")
+  linkedInGroupUrl           String?
+  showLinkedInGroupUrl       Boolean                @default(true)
+  lastMessageId              String?
+  facebookUrl                String?
+  showfacebookUrl            Boolean                @default(true)
+  sidejawnUrl                String?
+  showSidejawnUrl            Boolean                @default(true)
+
+  @@map("Communities")
+}
+
+model CommunityConnections {
+  id                               String               @id @default(uuid())
+  profile                          UserProfiles         @relation("CommunityProfileConnections", fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                        String
+  connection                       UserProfiles         @relation("CommunityProfileInvitations", fields: [connectionId], references: [id], onDelete: Cascade)
+  connectionId                     String
+  commmunity                       Communities          @relation("CommunityConnections", fields: [communityId], references: [id], onDelete: Cascade)
+  communityId                      String
+  CommunityConnectionNotifications Notifications[]      @relation("CommunityConnectionNotifications")
+  requestType                      CommunityRequestType @default(JOIN)
+  joinDate                         DateTime             @default(now())
+  status                           CommunityReqStatus   @default(PENDING)
+  requestFrom                      String?
+  location                         Json?
+  createdAt                        DateTime             @default(now())
+  updatedAt                        DateTime             @updatedAt
+}
+
+model CommunityReferrals {
+  id           String       @id @default(uuid())
+  profileId    String
+  profile      UserProfiles @relation("CommunitySenderReferrals", fields: [profileId], references: [id], onDelete: Cascade)
+  connectionId String
+  connection   UserProfiles @relation("CommunityConnectionReferrals", fields: [connectionId], references: [id], onDelete: Cascade)
+  communityId  String
+  community    Communities  @relation("CommunityReferrals", fields: [communityId], references: [id], onDelete: Cascade)
+  status       Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model UnlinkEvents {
+  id          String        @id @default(uuid())
+  profileId   String?
+  profile     UserProfiles? @relation("ProfileUnlinkedEvents", fields: [profileId], references: [id], onDelete: Cascade)
+  eventId     String
+  event       Events        @relation("UnlinkedEvents", fields: [eventId], references: [id], onDelete: Cascade)
+  communityId String?
+  community   Communities?  @relation("CommunityUnlinkedEvents", fields: [communityId], references: [id], onDelete: Cascade)
+  role        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Events {
+  id                 String              @id @default(uuid())
+  slug               String
+  title              String
+  previewImageUrl    String?
+  startDate          DateTime            @default(now())
+  endDate            DateTime?
+  organizer          String?
+  price              Int                 @default(0)
+  location           String?
+  description        String?
+  cardColor          String?             @default("bg-gradient-to-r from-slate-900 to-slate-700")
+  isExternal         Boolean             @default(false)
+  refUrl             String?             @unique
+  isPrivate          Boolean             @default(false)
+  eventParticipants  EventParticipants[] @relation("EventParticipants")
+  eventLinks         EventLink[]         @relation("EventLink")
+  eventTags          EventTag[]          @relation("EventTags")
+  eventNotifications Notifications[]     @relation("EventNotifications")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  locationData       Json?
+  isDeleted          Boolean             @default(false)
+  unlinkEvents       UnlinkEvents[]      @relation("UnlinkedEvents")
+  isVirtual          Boolean             @default(false)
+  virtualLink        String?
+  eventReferrals     EventReferrals[]    @relation("EventReferrals")
+
+  @@map("Events")
+}
+
+model EventLink {
+  id                 String        @id @default(uuid())
+  event              Events        @relation("EventLink", fields: [eventId], references: [id], onDelete: Cascade)
+  eventId            String
+  cardType           String
+  profileEventLink   UserProfiles? @relation("profileEvents", fields: [profileId], references: [id], onDelete: Cascade)
+  profileId          String?
+  communityEventLink Communities?  @relation("communityEvents", fields: [communityId], references: [id], onDelete: Cascade)
+  communityId        String?
+  role               EventRole     @default(PROMOTER)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model EventTag {
+  id        String   @id @default(uuid())
+  events    Events   @relation("EventTags", fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String
+  tags      Tags?    @relation("Tags", fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tags {
+  id        String     @id @default(uuid())
+  name      String
+  tags      EventTag[] @relation("Tags")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model EventParticipants {
+  id        String       @id @default(uuid())
+  location  String?
+  profile   UserProfiles @relation("EventParticipantProfile", fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
+  events    Events       @relation("EventParticipants", fields: [eventId], references: [id], onDelete: Cascade)
+  eventId   String
+  status    EventStatus  @default(ATTENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model NanoId {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tokens {
+  id         String   @id @default(uuid())
+  tokenKey   String
+  tokenValue String
+  createdAt  DateTime @default(now())
+}
+
+model EventReferrals {
+  id                  String              @id @default(uuid())
+  profileId           String?
+  profile             UserProfiles?       @relation("EventSenderReferrals", fields: [profileId], references: [id], onDelete: Cascade)
+  sharedByCommunityId String?
+  sharedByCommunity   Communities?        @relation("EventSenderReferrals", fields: [sharedByCommunityId], references: [id], onDelete: Cascade)
+  communityId         String
+  community           Communities         @relation("EventReferrals", fields: [communityId], references: [id], onDelete: Cascade)
+  eventId             String?
+  event               Events?             @relation("EventReferrals", fields: [eventId], references: [id], onDelete: Cascade)
+  status              EventReferralStatus @default(PENDING)
+  type                EventReferralType
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+enum ProfileReqStatus {
+  ACCEPTED
+  DECLINED
+  PENDING
+}
+
+enum LogActionType {
+  ACCOUNT_CREATED
+  ACCOUNT_CREATED_BY_SIGN_UP
+  ACCOUNT_CREATED_BY_INVITE
+  PROFILE_CREATED
+  PROFILE_CREATED_BY_SIGN_UP
+  PROFILE_CREATED_BY_INVITE
+  ACCOUNT_ACTIVATED
+  NEW_CONNECTION
+  SENT_EMAIL_INVITE
+  NEW_PROFILE_REQUEST
+  PROFILE_REQUEST_ACCEPTED
+  PROFILE_REQUEST_DECLINED
+  COMMUNITY_CREATED
+  COMMUNITY_UPDATED
+  COMMUNITY_CONNECTION_REQUEST
+  COMMUNITY_CONNECTION_REFERRAL
+  COMMUNITY_CONNECTION_ACCEPTED
+  COMMUNITY_CONNECTION_DECLINED
+  REFERRAL_ACCEPTED
+  COMMUNITY_CONNECTION_REFERRAL_ACCEPTED
+  COMMUNITY_CONNECTION_REFERRAL_DECLINED
+  COMMUNITY_ORGANISER_INVITE
+  SCAN_INVITE
+  MANUAL_INVITE
+  COMMUNITY
+  COMMUNITY_EVENT_CREATED
+  PROFILE_EVENT_CREATED
+  PARTICIPANT_CREATED
+  PARTICIPANT_UPDATED
+  EVENT_UPDATED
+  PAID_PROFILE_UPGRADE
+  PAID_PROFILE_CORE_UPGRADE
+  PAID_COMMUNITY_UPGRADE
+  PAID_COMMUNITY_CORE_UPGRADE
+  PAID_PROFILE_DOWNGRADE
+  PAID_PROFILE_CORE_DOWNGRADE
+  PAID_COMMUNITY_DOWNGRADE
+  PAID_COMMUNITY_CORE_DOWNGRADE
+}
+
+enum PlanInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum UserAccountType {
+  CREATE
+  INVITE
+  GOOGLE_CREATE
+}
+
+enum NotificationStatus {
+  READ
+  UNREAD
+}
+
+enum ConnectionStatus {
+  CONNECTED
+  PENDING
+  DECLINED
+  REVOKED
+}
+
+enum EventStatus {
+  ATTENDING
+  NOT_ATTENDING
+  NOT_CONFORMED
+}
+
+enum EventRole {
+  CREATOR
+  PROMOTER
+  ATTENDEE
+}
+
+enum CommunityRequestType {
+  JOIN
+  INVITE
+}
+
+enum CommunityReqStatus {
+  ACCEPTED
+  DECLINED
+  PENDING
+  REFERRAL
+  REFERRAL_ACCEPTED
+  REFERRAL_DECLINED
+}
+
+enum EventReqStatus {
+  ACCEPTED
+  DECLINED
+  PENDING
+  REFERRAL
+  REFERRAL_ACCEPTED
+  REFERRAL_DECLINED
+}
+
+enum SubscriptionType {
+  PROFILE
+  COMMUNITY
+}
+
+enum PlanType {
+  PAID
+  FREE
+}
+
+enum PlanSubType {
+  PROFILE_FREE_CARD
+  PROFILE_CARD_MONTHLY
+  PROFILE_CARD_YEARLY
+  PROFILE_CARD_CORE_PLAN_MONTHLY
+  PROFILE_CARD_CORE_PLAN_YEARLY
+  COMMUNITY_FREE_CARD
+  COMMUNITY_CARD_MONTHLY
+  COMMUNITY_CARD_YEARLY
+  COMMUNITY_CARD_PLUS_PLAN_MONTHLY
+  COMMUNITY_CARD_PLUS_PLAN_YEARLY
+}
+
+enum SubscriptionSubType {
+  PROFILE_FREE_CARD
+  PROFILE_CARD_MONTHLY
+  PROFILE_CARD_YEARLY
+  PROFILE_CARD_CORE_PLAN_MONTHLY
+  PROFILE_CARD_CORE_PLAN_YEARLY
+  COMMUNITY_FREE_CARD
+  COMMUNITY_CARD_MONTHLY
+  COMMUNITY_CARD_YEARLY
+  COMMUNITY_CARD_PLUS_PLAN_MONTHLY
+  COMMUNITY_CARD_PLUS_PLAN_YEARLY
+}
+
+enum EventReferralStatus {
+  ACCEPTED
+  DECLINED
+  VIEWED
+  PENDING
+}
+
+enum EventReferralType {
+  PROFILE_TO_COMMUNITY
+  COMMUNITY_TO_COMMUNITY
+}
