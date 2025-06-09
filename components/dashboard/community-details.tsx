@@ -33,7 +33,9 @@ import {
   Shield,
   Crown,
   Activity,
-  Tag
+  Tag,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react"
 import { CommunityDetailsData } from "@/lib/analytics-service"
 
@@ -45,6 +47,8 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
   const [community, setCommunity] = useState<CommunityDetailsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [membersCurrentPage, setMembersCurrentPage] = useState(1)
+  const membersPerPage = 5
 
   useEffect(() => {
     async function fetchCommunityDetails() {
@@ -79,6 +83,11 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
           category: "Technology",
           verified: true,
           tags: ["AI", "Machine Learning", "Web Development", "Startup", "Innovation"],
+          creator: {
+            id: "creator1",
+            name: "Sarah Chen",
+            avatar: "/api/placeholder/32/32"
+          },
           recentActivity: [
             { date: "Dec 15", members: 12, events: 3, posts: 45 },
             { date: "Dec 16", members: 18, events: 2, posts: 67 },
@@ -93,7 +102,14 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
             { id: "2", name: "Sarah Chen", avatar: "/api/placeholder/32/32", role: "Active Member", contributions: 189 },
             { id: "3", name: "Michael Johnson", avatar: "/api/placeholder/32/32", role: "Event Organizer", contributions: 156 },
             { id: "4", name: "Emma Davis", avatar: "/api/placeholder/32/32", role: "Content Creator", contributions: 143 },
-            { id: "5", name: "David Kim", avatar: "/api/placeholder/32/32", role: "Community Helper", contributions: 128 }
+            { id: "5", name: "David Kim", avatar: "/api/placeholder/32/32", role: "Community Helper", contributions: 128 },
+            { id: "6", name: "Lisa Wang", avatar: "/api/placeholder/32/32", role: "Tech Lead", contributions: 115 },
+            { id: "7", name: "James Wilson", avatar: "/api/placeholder/32/32", role: "Mentor", contributions: 98 },
+            { id: "8", name: "Maria Garcia", avatar: "/api/placeholder/32/32", role: "Designer", contributions: 87 },
+            { id: "9", name: "Robert Brown", avatar: "/api/placeholder/32/32", role: "Developer", contributions: 76 },
+            { id: "10", name: "Jennifer Lee", avatar: "/api/placeholder/32/32", role: "Product Manager", contributions: 65 },
+            { id: "11", name: "Kevin Zhang", avatar: "/api/placeholder/32/32", role: "Data Scientist", contributions: 54 },
+            { id: "12", name: "Amanda Taylor", avatar: "/api/placeholder/32/32", role: "Marketing Lead", contributions: 43 }
           ],
           popularTags: [
             { name: "AI", count: 45, trend: 12.3 },
@@ -226,6 +242,22 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
                 <p className="text-neutral-400 mb-4 max-w-2xl">{community.description}</p>
               )}
               
+              {/* Creator Information */}
+              <div className="mb-4 p-3 rounded-lg bg-neutral-800/30">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={community.creator.avatar} alt={community.creator.name} />
+                    <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm">
+                      {community.creator.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="text-sm text-neutral-400">Created by</div>
+                    <div className="font-medium text-white">{community.creator.name}</div>
+                  </div>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div className="flex items-center text-neutral-300">
                   <Users className="mr-2 h-4 w-4 text-purple-400" />
@@ -260,13 +292,6 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
                 </div>
               )}
             </div>
-            
-            <div className="mt-4 md:mt-0 flex space-x-2">
-              <Button variant="outline" className="bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                View Details
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -283,6 +308,62 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
           />
         ))}
       </div>
+
+      {/* Community Growth Chart */}
+      <Card className="bg-neutral-900 text-white border-neutral-700/50 shadow-xl rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center">
+            <TrendingUp className="mr-2 h-5 w-5 text-purple-400" />
+            Community Growth
+          </CardTitle>
+          <CardDescription className="text-neutral-400">
+            Member growth over the last week
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={[
+              { date: "Dec 15", members: community.memberCount - 150 },
+              { date: "Dec 16", members: community.memberCount - 120 },
+              { date: "Dec 17", members: community.memberCount - 95 },
+              { date: "Dec 18", members: community.memberCount - 70 },
+              { date: "Dec 19", members: community.memberCount - 40 },
+              { date: "Dec 20", members: community.memberCount - 15 },
+              { date: "Dec 21", members: community.memberCount }
+            ]}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
+              <XAxis dataKey="date" stroke="#a3a3a3" fontSize={12} />
+              <YAxis stroke="#a3a3a3" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "#262626",
+                  border: "1px solid #404040",
+                  borderRadius: "8px",
+                  color: "#ffffff"
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="members"
+                stroke="#8b5cf6"
+                strokeWidth={3}
+                dot={{
+                  r: 4,
+                  fill: "#8b5cf6",
+                  stroke: "#8b5cf6", 
+                  strokeWidth: 2,
+                }}
+                activeDot={{ 
+                  r: 6, 
+                  stroke: "#8b5cf6", 
+                  strokeWidth: 2, 
+                  fill: "#e9d5ff"
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
@@ -386,7 +467,7 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {community.topMembers.map((member, index) => (
+            {community.topMembers.slice((membersCurrentPage - 1) * membersPerPage, membersCurrentPage * membersPerPage).map((member, index) => (
               <div key={`${member.id}-${index}`} className="flex items-center justify-between p-3 rounded-lg bg-neutral-800/50">
                 <div className="flex items-center space-x-3">
                   <Avatar className="w-10 h-10">
@@ -406,6 +487,37 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
               </div>
             ))}
           </div>
+          
+          {/* Pagination Controls */}
+          {community.topMembers.length > membersPerPage && (
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-neutral-400">
+                Showing {((membersCurrentPage - 1) * membersPerPage) + 1} to {Math.min(membersCurrentPage * membersPerPage, community.topMembers.length)} of {community.topMembers.length} members
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={membersCurrentPage === 1}
+                  onClick={() => setMembersCurrentPage(membersCurrentPage - 1)}
+                  className="bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={membersCurrentPage * membersPerPage >= community.topMembers.length}
+                  onClick={() => setMembersCurrentPage(membersCurrentPage + 1)}
+                  className="bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

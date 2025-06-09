@@ -96,6 +96,11 @@ export interface CommunityDetailsData {
   verified: boolean
   description?: string
   tags: string[]
+  creator: {
+    id: string
+    name: string
+    avatar?: string
+  }
   recentActivity: {
     date: string
     members: number
@@ -1100,7 +1105,12 @@ export async function getCommunityDetails(id: string): Promise<CommunityDetailsD
       tags: Object.keys(tagCounts),
       recentActivity,
       topMembers,
-      popularTags
+      popularTags,
+      creator: {
+        id: community.profileCommunities.profileName || community.id,
+        name: community.profileCommunities.profileName || 'Unknown Creator',
+        avatar: community.profileCommunities.avatar || undefined
+      }
     }
 
     console.log(`🔍 Community Details: ${community.cardName} - ${community.memberCount} members, ${popularTags.length} tags`)
@@ -1257,13 +1267,13 @@ function getMockCommunityLeaderboard(): CommunityLeaderboardData[] {
       category: "Technology",
       verified: true,
       rank: 1,
-      tags: ["AI", "Machine Learning", "Web Development", "Startup", "Innovation"],
+      tags: ["AI", "Machine Learning", "Web Development", "Blockchain", "IoT"],
       totalPosts: 2340,
       activeMembers: 12890,
       creator: {
-        id: "Tech Innovators Hub",
-        name: "Tech Innovators Hub",
-        avatar: "/api/placeholder/40/40"
+        id: "creator1",
+        name: "Sarah Chen",
+        avatar: "/api/placeholder/32/32"
       }
     },
     {
@@ -1277,13 +1287,13 @@ function getMockCommunityLeaderboard(): CommunityLeaderboardData[] {
       category: "Arts & Design",
       verified: true,
       rank: 2,
-      tags: ["Design", "UI/UX", "Graphic Design", "Creative", "Art"],
+      tags: ["Design", "UI/UX", "Creative Writing", "Photography", "Digital Art"],
       totalPosts: 1890,
       activeMembers: 10234,
       creator: {
-        id: "Creative Minds Collective",
-        name: "Creative Minds Collective",
-        avatar: "/api/placeholder/40/40"
+        id: "creator2",
+        name: "Marcus Rivera",
+        avatar: "/api/placeholder/32/32"
       }
     },
     {
@@ -1297,13 +1307,53 @@ function getMockCommunityLeaderboard(): CommunityLeaderboardData[] {
       category: "Business",
       verified: false,
       rank: 3,
-      tags: ["Startup", "Entrepreneurship", "Business", "Funding", "Growth"],
+      tags: ["Startup", "Entrepreneurship", "Business Development", "Funding", "Growth Hacking"],
       totalPosts: 3420,
       activeMembers: 8790,
       creator: {
-        id: "Startup Founders Network",
-        name: "Startup Founders Network",
-        avatar: "/api/placeholder/40/40"
+        id: "creator3",
+        name: "Alex Johnson",
+        avatar: "/api/placeholder/32/32"
+      }
+    },
+    {
+      id: "4",
+      name: "Digital Marketing Masters",
+      memberCount: 9876,
+      eventsCreated: 92,
+      engagement: 87.5,
+      growth: 19.2,
+      lastActive: "3 hours ago",
+      category: "Marketing",
+      verified: true,
+      rank: 4,
+      tags: ["Digital Marketing", "SEO", "Social Media", "Analytics", "Content Strategy"],
+      totalPosts: 1567,
+      activeMembers: 7234,
+      creator: {
+        id: "creator4",
+        name: "Emma Thompson",
+        avatar: "/api/placeholder/32/32"
+      }
+    },
+    {
+      id: "5",
+      name: "Data Science Community", 
+      memberCount: 8934,
+      eventsCreated: 76,
+      engagement: 85.1,
+      growth: 15.8,
+      lastActive: "4 hours ago",
+      category: "Technology",
+      verified: true,
+      rank: 5,
+      tags: ["Data Science", "Python", "Machine Learning", "Statistics", "Big Data"],
+      totalPosts: 2101,
+      activeMembers: 6789,
+      creator: {
+        id: "creator5",
+        name: "Dr. James Wong",
+        avatar: "/api/placeholder/32/32"
       }
     }
   ]
@@ -1336,7 +1386,12 @@ function getMockCommunityDetails(id: string): CommunityDetailsData {
       { id: "2", name: "Sarah Chen", avatar: "/api/placeholder/32/32", role: "Active Member", contributions: 189 },
       { id: "3", name: "Michael Johnson", avatar: "/api/placeholder/32/32", role: "Event Organizer", contributions: 156 },
       { id: "4", name: "Emma Davis", avatar: "/api/placeholder/32/32", role: "Content Creator", contributions: 143 },
-      { id: "5", name: "David Kim", avatar: "/api/placeholder/32/32", role: "Community Helper", contributions: 128 }
+      { id: "5", name: "David Kim", avatar: "/api/placeholder/32/32", role: "Community Helper", contributions: 128 },
+      { id: "6", name: "Lisa Wang", avatar: "/api/placeholder/32/32", role: "Tech Lead", contributions: 115 },
+      { id: "7", name: "James Wilson", avatar: "/api/placeholder/32/32", role: "Mentor", contributions: 98 },
+      { id: "8", name: "Maria Garcia", avatar: "/api/placeholder/32/32", role: "Designer", contributions: 87 },
+      { id: "9", name: "Robert Brown", avatar: "/api/placeholder/32/32", role: "Developer", contributions: 76 },
+      { id: "10", name: "Jennifer Lee", avatar: "/api/placeholder/32/32", role: "Product Manager", contributions: 65 }
     ],
     popularTags: [
       { name: "AI", count: 45, trend: 12.3 },
@@ -1344,7 +1399,12 @@ function getMockCommunityDetails(id: string): CommunityDetailsData {
       { name: "Web Development", count: 32, trend: 15.2 },
       { name: "Startup", count: 28, trend: 22.1 },
       { name: "Innovation", count: 24, trend: 5.8 }
-    ]
+    ],
+    creator: {
+      id: "creator1",
+      name: "Sarah Chen",
+      avatar: "/api/placeholder/32/32"
+    }
   }
 }
 

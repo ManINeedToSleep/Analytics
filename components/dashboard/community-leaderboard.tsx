@@ -40,11 +40,13 @@ import {
   Crown,
   Filter,
   Tag,
-  Activity
+  Activity,
+  CheckCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { CommunityLeaderboardData } from "@/lib/analytics-service"
+import Image from "next/image"
 
 type SortField = 'name' | 'memberCount' | 'eventsCreated' | 'engagement'
 type SortDirection = 'asc' | 'desc'
@@ -97,7 +99,12 @@ export function CommunityLeaderboard() {
             rank: 1,
             tags: ["AI", "Machine Learning", "Web Development"],
             totalPosts: 2340,
-            activeMembers: 12890
+            activeMembers: 12890,
+            creator: {
+              id: "creator1",
+              name: "Sarah Chen",
+              avatar: "/api/placeholder/32/32"
+            }
           },
           {
             id: "2", 
@@ -112,7 +119,12 @@ export function CommunityLeaderboard() {
             rank: 2,
             tags: ["Design", "UI/UX", "Creative"],
             totalPosts: 1890,
-            activeMembers: 10234
+            activeMembers: 10234,
+            creator: {
+              id: "creator2",
+              name: "Marcus Rivera",
+              avatar: "/api/placeholder/32/32"
+            }
           },
           {
             id: "3",
@@ -127,7 +139,12 @@ export function CommunityLeaderboard() {
             rank: 3,
             tags: ["Startup", "Entrepreneurship", "Business"],
             totalPosts: 3420,
-            activeMembers: 8790
+            activeMembers: 8790,
+            creator: {
+              id: "creator3",
+              name: "Alex Johnson",
+              avatar: "/api/placeholder/32/32"
+            }
           }
         ]
         setCommunities(mockCommunities)
@@ -254,7 +271,7 @@ export function CommunityLeaderboard() {
         <div className="rounded-lg border border-neutral-700/50 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-neutral-700/50 hover:bg-neutral-800/50">
+              <TableRow className="border-neutral-700 hover:bg-neutral-800/20">
                 <TableHead className="text-neutral-300 font-semibold">Rank</TableHead>
                 <TableHead className="text-neutral-300 font-semibold">
                   <Button
@@ -266,6 +283,7 @@ export function CommunityLeaderboard() {
                     {getSortIcon('name')}
                   </Button>
                 </TableHead>
+                <TableHead className="text-neutral-300 font-semibold">Creator</TableHead>
                 <TableHead className="text-neutral-300 font-semibold">
                   <Button
                     variant="ghost"
@@ -296,7 +314,7 @@ export function CommunityLeaderboard() {
                     {getSortIcon('engagement')}
                   </Button>
                 </TableHead>
-                <TableHead className="text-neutral-300 font-semibold">Category</TableHead>
+                <TableHead className="text-neutral-300 font-semibold">Tags</TableHead>
                 <TableHead className="text-neutral-300 font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -312,21 +330,51 @@ export function CommunityLeaderboard() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                        {community.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="flex items-center">
-                          <span className="font-medium text-white">{community.name}</span>
+                    <div className="flex items-center gap-3">
+                      {community.avatar ? (
+                        <Image 
+                          src={community.avatar} 
+                          alt={community.name}
+                          width={40}
+                          height={40}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                          <span className="text-white font-semibold text-sm">
+                            {community.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="font-medium text-white">{community.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-neutral-400">{community.lastActive}</span>
                           {community.verified && (
-                            <Badge variant="secondary" className="ml-2 bg-blue-500/20 text-blue-400 border-blue-500/30">
-                              Verified
-                            </Badge>
+                            <CheckCircle className="h-3 w-3 text-blue-400" />
                           )}
                         </div>
-                        <p className="text-sm text-neutral-400">Active {community.lastActive}</p>
                       </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {community.creator.avatar ? (
+                        <Image 
+                          src={community.creator.avatar} 
+                          alt={community.creator.name}
+                          width={24}
+                          height={24}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                          <span className="text-white font-medium text-xs">
+                            {community.creator.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-sm text-neutral-300">{community.creator.name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -344,9 +392,25 @@ export function CommunityLeaderboard() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="border-neutral-600 text-neutral-300">
-                      {community.category}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1 max-w-[200px]">
+                      {community.tags.slice(0, 3).map((tag, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="outline" 
+                          className="text-xs bg-neutral-800 border-neutral-600 text-neutral-300 hover:bg-neutral-700"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                      {community.tags.length > 3 && (
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs bg-neutral-800 border-neutral-600 text-neutral-400"
+                        >
+                          +{community.tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

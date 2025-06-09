@@ -1,393 +1,216 @@
 # Dashboard Metrics Mapping
 
-This document describes how the RYLYTICS dashboard metrics are calculated from the Prisma database schema and how trends are calculated.
+This document explains how dashboard metrics are calculated and mapped from the Prisma database schema to the analytics dashboard components.
 
-## Core Database Models Used
+## 🏆 Community Leaderboard
 
-### Primary Tables
-- **Users**: Main user accounts (`id`, `email`, `isDeleted`, `createdAt`, `updatedAt`)
-- **UserProfiles**: Profile information (`userId`, `isProfileActivated`, `createdAt`)
-- **Communities**: Community data (`profileId`, `createdAt`, `updatedAt`, `memberCount`, `communityCount`, `isPrivate`)
-- **CommunityConnections**: Community membership (`profileId`, `communityId`, `status`, `joinDate`, `createdAt`)
-- **Events**: Events (`createdAt`, `isDeleted`, `eventTags`)
-- **EventTag**: Junction table for event tagging (`eventId`, `tagId`, `createdAt`)
-- **Tags**: Tag definitions (`id`, `name`, `createdAt`)
-- **Logs**: Activity tracking (`actorId`, `actionType`, `createdAt`)
-- **Subscriptions**: Paid subscriptions (`userId`, `communityId`, `isSubscriptionCancelled`, `paymentStatus`, `subscriptionType`, `subscriptionSubType`)
-- **PlanTrials**: Free trial tracking (`userProfileId`, `trialEnd`, `createdAt`)
-- **Plans**: Subscription plans (`price`, `planType`, `planSubType`)
+### Data Source
+- **Primary Table**: `Communities`
+- **Related Tables**: `CommunityConnections`, `EventLink`, `Events`, `EventTag`, `Tags`, `UserProfiles`
 
-## Dashboard Metrics Mapping
+### Metrics Calculation
 
-### Overview Cards
-
-#### 1. Total Users
-- **Query**: `Users.count({ where: { isDeleted: false } })`
-- **Description**: Count of all registered, non-deleted users
-- **Trend Calculation**: Compare today's total vs yesterday's total
-
-#### 2. Active Communities
-- **Query**: `Communities.count({ where: { updatedAt: { gte: last30Days } } })`
-- **Description**: Communities with any activity in the last 30 days
-- **Trend Calculation**: Compare today's active count vs yesterday's active count
-
-#### 3. Profile Completions
-- **Query**: `UserProfiles.count({ where: { isProfileActivated: true } })`
-- **Description**: Users who have activated/completed their profiles
-- **Trend Calculation**: Compare today's total vs yesterday's total
-
-#### 4. Monthly Events
-- **Query**: `Events.count({ where: { createdAt: { gte: currentMonth }, isDeleted: false } })`
-- **Description**: Events created in the current month
-- **Trend Calculation**: Compare current month vs last month
-
-#### 5. Daily Active Users
-- **Query**: `Logs.groupBy({ by: ['actorId'], where: { createdAt: { gte: last24h } } })`
-- **Description**: Unique users with log activity in the last 24 hours
-- **Trend Calculation**: Compare yesterday's active users vs two days ago
-
-#### 6. Weekly Growth
-- **Query**: `Users.count({ where: { createdAt: { gte: lastWeek }, isDeleted: false } })`
-- **Description**: New user registrations in the last 7 days vs previous 7 days
-- **Calculation**: `((thisWeek - lastWeek) / lastWeek) * 100`
-
-#### 7. Content Created
-- **Query**: Combined count of Events + Communities created in last 24h
-- **Description**: Total content pieces (events + communities) created
-- **Trend Calculation**: Compare yesterday's content vs two days ago
-
-#### 8. Platform Health
-- **Source**: System monitoring (mock data at 98.2%)
-- **Description**: Overall system uptime and performance metrics
-- **Note**: Would integrate with monitoring tools like DataDog, New Relic, etc.
-
-#### 9. Free Trial Users
-- **Query**: `PlanTrials.count({ where: { trialEnd: { gt: new Date() } } })`
-- **Description**: Users currently in active free trial period
-- **Trend Calculation**: Compare today's active trials vs yesterday's
-
-#### 10. Trial Conversion Rate
-- **Calculation**: 
-  ```sql
-  convertedTrials / totalTrialsCompleted * 100
-  ```
-- **Logic**: Users who completed trials and have active subscriptions
-- **Trend Calculation**: Compare today's conversion rate vs yesterday's
-
-#### 11. Monthly Recurring Revenue (MRR)
-- **Query**: `Subscriptions.findMany({ where: { isSubscriptionCancelled: false, paymentStatus: 'active' }, include: { plan: true } })`
-- **Calculation**: `Sum(activeSubs.plan.price) / 100` (convert from cents)
-- **Trend Calculation**: Compare today's MRR vs yesterday's
-
-## Community Analytics System
-
-### Community Leaderboard Metrics
-
-#### Community Ranking Calculation
-- **Member Count**: `Communities.memberCount` (direct field)
-- **Events Created**: `Events.count({ where: { communityId: community.id, isDeleted: false } })`
-- **Engagement Rate**: 
-  ```sql
-  (activeMembers / totalMembers) * 100
-  WHERE activeMembers = CommunityConnections.count({
-    where: { 
-      communityId: community.id, 
-      status: 'ACCEPTED',
-      joinDate: { gte: last30Days }
-    }
-  })
-  ```
-- **Growth Rate**: 
-  ```sql
-  ((currentMonthMembers - lastMonthMembers) / lastMonthMembers) * 100
-  ```
-
-#### Community Categories & Filtering
-- **Categories**: Derived from `Communities.communityType` field
-- **Verification Status**: `Communities.isVerified` boolean flag
-- **Subscription Tiers**: Based on `Subscriptions.subscriptionSubType`:
-  - `COMMUNITY_FREE_CARD`: Free tier
-  - `COMMUNITY_CARD_MONTHLY/YEARLY`: Premium tier  
-  - `COMMUNITY_CARD_PLUS_PLAN_MONTHLY/YEARLY`: Enterprise tier
-
-#### Community Activity Metrics
-- **Last Active**: `Communities.updatedAt` timestamp
-- **Member Count**: `Communities.memberCount` (updated via triggers)
-- **Community Request Count**: `Communities.communityRequestCount`
-- **Event Referral Status**: `Communities.eventReferralSent` boolean
-
-### Individual Community Analytics
-
-#### Membership Analytics
-- **Total Members**: `CommunityConnections.count({ where: { communityId, status: 'ACCEPTED' } })`
-- **New Members (30d)**: `CommunityConnections.count({ where: { communityId, status: 'ACCEPTED', joinDate: { gte: 30daysAgo } } })`
-- **Member Churn**: `CommunityConnections.count({ where: { communityId, status: 'DECLINED' or left } })`
-- **Growth Trend**: Month-over-month member acquisition
-
-#### Event Performance
-- **Events Created**: `EventLink.count({ where: { communityId } }) + Events via community creator`
-- **Event Attendance**: `EventParticipants.count({ where: { eventId: communityEvents } })`
-- **Event Satisfaction**: Calculated from event feedback (future implementation)
-
-#### Engagement Metrics
-- **Posts & Comments**: Tracked via Logs table with `actionType` values
-- **Active Contributors**: Users with recent activity in community
-- **Moderator Activity**: `Communities.moderatorCount` and moderation logs
-
-## Event & Tag System
-
-### Event Tagging
-- **Tag Assignment**: `EventTag` junction table links `Events` to `Tags`
-- **Tag Categories**: `Tags.name` field with predefined categories:
-  - Technology (AI, Web Development, Mobile, etc.)
-  - Business (Startup, Marketing, Finance, etc.)
-  - Arts & Design (UI/UX, Graphic Design, etc.)
-  - Education (Workshop, Course, Seminar, etc.)
-  - Networking (Meetup, Conference, Social, etc.)
-
-#### Tag Analytics
-- **Popular Tags**: 
-  ```sql
-  SELECT t.name, COUNT(et.eventId) as eventCount
-  FROM Tags t
-  JOIN EventTag et ON t.id = et.tagId
-  JOIN Events e ON et.eventId = e.id
-  WHERE e.isDeleted = false
-  GROUP BY t.id, t.name
-  ORDER BY eventCount DESC
-  ```
-
-- **Event Discovery**: Filter events by tag combinations
-- **Trend Analysis**: Track tag popularity over time
-- **Community Tag Preferences**: Most used tags per community
-
-### Event Metrics
-- **Event Creation Rate**: `Events.count({ where: { createdAt: { gte: timeRange } } })`
-- **Event Categories**: Derived from associated tags
-- **Event Engagement**: 
-  - `EventParticipants.count({ where: { eventId, status: 'ATTENDING' } })`
-  - Comments and interactions via Logs
-- **Event Success Rate**: Attendance vs registration ratio
-
-## Chart Components Data Sources
-
-### Platform Growth Chart
-- **Time Range**: Last 6 months
-- **Metrics**: Cumulative Users, Communities, Events by month
-- **Query Logic**: Count total records created up to each month end
-- **Data Refresh**: Real-time on component mount
-
-### Community Growth Chart (Communities Overview)
-- **Time Range**: Last 6 months
-- **Metrics**:
-  - `Communities.count({ where: { createdAt: { lte: monthEnd } } })`
-  - `Users.count({ where: { createdAt: { lte: monthEnd }, isDeleted: false } })`
-  - `Events.count({ where: { createdAt: { lte: monthEnd }, isDeleted: false } })`
-
-### User Engagement Chart (Bar Chart)
-- **Time Range**: Last 30 days
-- **Metrics**: 
-  - New Users: `Users.count({ where: { createdAt: { gte: 30daysAgo } } })`
-  - Active Users: Unique users in Logs table (last 30 days)
-  - Profiles Created: `UserProfiles.count({ where: { createdAt: { gte: 30daysAgo } } })`
-  - Communities Joined: `CommunityConnections.count({ where: { status: 'ACCEPTED', createdAt: { gte: 30daysAgo } } })`
-  - Events Created: `Events.count({ where: { createdAt: { gte: 30daysAgo }, isDeleted: false } })`
-
-### Community Category Distribution (Pie Chart)
-- **Data Source**: `Communities.communityType` field
-- **Calculation**: 
-  ```sql
-  SELECT communityType, COUNT(*) as count
-  FROM Communities
-  GROUP BY communityType
-  ```
-
-### Membership Tier Distribution
-- **Data Source**: `Subscriptions` table joined with `Communities`
-- **Tiers**:
-  - Free: No active subscription
-  - Premium: `COMMUNITY_CARD_MONTHLY/YEARLY`
-  - Enterprise: `COMMUNITY_CARD_PLUS_PLAN_MONTHLY/YEARLY`
-
-### Platform Conversion Metrics (Progress Bars)
-1. **Email Verification**: `verifiedEmails / totalUsers * 100`
-2. **Account Activation**: `activatedAccounts / totalUsers * 100`
-3. **Profile Completion**: `completedProfiles / totalUsers * 100`
-4. **Paid Conversion**: `paidSubscriptions / totalUsers * 100`
-
-### Member Engagement Chart (Stacked Area)
-- **Time Range**: Configurable (7d, 30d, 90d, 1y)
-- **Aggregation Strategy**:
-  - 7d: Daily data points
-  - 30d: Weekly aggregates (5 points)
-  - 90d: Bi-weekly aggregates (6 points)
-  - 1y: Monthly aggregates (12 points)
-- **Metrics**: 
-  - User Activity: Unique users in Logs table per period
-  - Profile Creation: UserProfiles created per period
-  - Event Creation: Events created per period
-
-## Community Management Analytics
-
-### Community Health Metrics
-- **Activity Score**: Combination of posts, events, and member engagement
-- **Growth Velocity**: Rate of member acquisition over time
-- **Engagement Quality**: Comments-to-posts ratio, event attendance rates
-- **Retention Rate**: Members staying active after 30/60/90 days
-
-### Community Performance Indicators
-- **Top Performing Communities**: Ranked by engagement, growth, and activity
-- **At-Risk Communities**: Low activity, declining membership
-- **Rising Stars**: High growth rate communities
-- **Mature Communities**: Stable, established communities
-
-### Moderation & Management
-- **Moderation Activity**: Actions taken by community moderators
-- **Community Guidelines**: Compliance and violation tracking
-- **Member Reports**: Issues reported within communities
-- **Auto-Moderation**: Automated content filtering effectiveness
-
-## Trend Calculation Logic
-
-All trends use the same calculation method:
-
+#### Member Count
 ```typescript
-function calculateTrend(current: number, previous: number): number {
-  if (previous === 0) return current > 0 ? 100 : 0
-  return ((current - previous) / previous) * 100
+memberCount: community.memberCount
+```
+- Direct field from `Communities` table
+- Represents total registered members
+
+#### Events Created
+```typescript
+eventsCreated: community.communityEvents.length
+```
+- Count of related `EventLink` records
+- Links communities to events they've created/promoted
+
+#### Engagement Rate
+```typescript
+const thirtyDaysAgo = subDays(new Date(), 30)
+const activeMembers = community.CommunityConnections.filter(
+  (conn) => conn.joinDate >= thirtyDaysAgo
+).length
+const engagement = community.memberCount > 0 
+  ? (activeMembers / community.memberCount) * 100 
+  : 0
+```
+- Calculated as: (Active Members in Last 30 Days / Total Members) × 100
+- Active members = those who joined in the last 30 days
+
+#### Creator Information
+```typescript
+creator: {
+  id: community.profileCommunities.profileName || community.id,
+  name: community.profileCommunities.profileName || 'Unknown Creator',
+  avatar: community.profileCommunities.avatar || undefined
 }
 ```
+- Retrieved from `UserProfiles` via `profileCommunities` relationship
+- Shows who created the community
 
-### Time Periods for Trends
-- **Overview Cards**: Yesterday vs 2 days ago
-- **Monthly Events**: Current month vs last month
-- **Weekly Growth**: Last 7 days vs previous 7 days
-- **Community Growth**: Current month vs last month
-- **Member Engagement**: Current period vs previous period
+#### Tags
+```typescript
+const allTags = community.communityEvents.flatMap(
+  (eventLink) => eventLink.event.eventTags.map((et) => et.tags?.name || '')
+).filter(Boolean)
+const uniqueTags = [...new Set(allTags)]
+```
+- Extracted from events associated with the community
+- Path: `Communities` → `EventLink` → `Events` → `EventTag` → `Tags`
+- Deduplicated to show unique tags only
 
-## Data Refresh Strategy
+#### Category Classification
+```typescript
+function getCategoryFromTags(tags: string[]): string | null {
+  const categoryMap = {
+    'AI': 'Technology',
+    'Machine Learning': 'Technology',
+    'Web Development': 'Technology',
+    'Design': 'Arts & Design',
+    'UI/UX': 'Arts & Design',
+    'Startup': 'Business',
+    'Entrepreneurship': 'Business',
+    'Marketing': 'Marketing'
+  }
+  
+  for (const tag of tags) {
+    if (categoryMap[tag]) {
+      return categoryMap[tag]
+    }
+  }
+  return null
+}
+```
+- Auto-categorizes communities based on their most common tags
+- Falls back to `community.communityType` or 'General'
 
-### Server-Side Analytics Pages
-- All community analytics use server-side data fetching
-- Real-time calculations on each page load
-- Query parameter-based filtering for specific communities
-- No client-side routing for individual community data
+### Removed Fields
+- **Growth Rate**: Removed as requested (was calculated from member join trends)
+- **Category Filter**: Removed from leaderboard interface
 
-### API Routes for Charts
-- `/api/analytics/community-leaderboard` - Top communities with ranking
-- `/api/analytics/community-overview` - Aggregate community metrics
-- `/api/analytics/community-details?id=` - Specific community data
-- `/api/analytics/community-growth` - Growth trends
-- `/api/analytics/event-tags` - Tag usage and trends
+## 🔍 Community Details
 
-### Client-Side Components
-- Charts fetch data on component mount
-- Loading states while fetching
-- Fallback to mock data if database queries fail
-- Error handling with console logging
+### Data Source
+- **Primary Table**: `Communities` (single record by ID)
+- **Related Tables**: Same as leaderboard + detailed member information
 
-## Error Handling
+### Additional Metrics
 
-### Database Connection Issues
-- All components have fallback mock data
-- Error logging to console
-- Graceful degradation with loading states
+#### Recent Activity (Last Week)
+```typescript
+const recentActivity = generateRecentActivity(community.CommunityConnections)
+```
+- Simulated weekly activity data
+- Shows member joins, events, and posts over 7 days
+- **Note**: Currently uses mock data generation
 
-### Data Validation
-- Type-safe interfaces for all data structures
-- Null/undefined checks with optional chaining
-- Default values for empty datasets
+#### Top Contributing Members (Paginated)
+```typescript
+const uniqueMembers = new Map()
+community.CommunityConnections.forEach((conn) => {
+  if (!uniqueMembers.has(conn.profile.id)) {
+    uniqueMembers.set(conn.profile.id, {
+      id: conn.profile.id,
+      name: conn.profile.profileName || 'Unknown',
+      avatar: conn.profile.avatar || undefined,
+      role: 'Member', // Would determine from role field
+      contributions: 0 // Would calculate from activities
+    })
+  }
+})
+```
+- **Pagination**: 5 members per page
+- **Deduplication**: Uses Map to ensure unique members by profile ID
+- **Contributions**: Currently mock data (would calculate from actual activities)
 
-## Performance Considerations
+#### Popular Tags with Trends
+```typescript
+const tagCounts = allTags.reduce((acc, tag) => {
+  acc[tag.name] = (acc[tag.name] || 0) + 1
+  return acc
+}, {})
 
-### Query Optimization
-- Use `count()` instead of `findMany().length` for counting
-- Parallel queries with `Promise.all()` where possible
-- Efficient date range filtering
-- Minimal data selection (only required fields)
+const popularTags = Object.entries(tagCounts)
+  .map(([name, count]) => ({
+    name,
+    count: count as number,
+    trend: 0 // Would calculate based on time series
+  }))
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 10)
+```
+- Shows top 10 most used tags in community
+- **Trend Calculation**: Currently placeholder (would compare with previous period)
 
-### Database Indexes
-Recommended indexes for optimal performance:
-```sql
--- Users table
-CREATE INDEX idx_users_created_at ON Users(createdAt);
-CREATE INDEX idx_users_deleted ON Users(isDeleted);
+#### Community Growth Chart
+```typescript
+// Mock growth data - shows member count progression
+const growthData = [
+  { date: "Dec 15", members: community.memberCount - 150 },
+  { date: "Dec 16", members: community.memberCount - 120 },
+  // ... progressive growth to current count
+]
+```
+- **Time Range**: Last week (as requested, changed from "2 days")
+- **Data**: Currently simulated growth progression
+- **Real Implementation**: Would query `CommunityConnections.joinDate` grouped by day
 
--- Events table  
-CREATE INDEX idx_events_created_at ON Events(createdAt);
-CREATE INDEX idx_events_deleted ON Events(isDeleted);
+## 🎯 Key Implementation Notes
 
--- Communities table
-CREATE INDEX idx_communities_updated ON Communities(updatedAt);
-CREATE INDEX idx_communities_type ON Communities(communityType);
-CREATE INDEX idx_communities_member_count ON Communities(memberCount);
+### Environment-Controlled Data Sources
+```typescript
+const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true' || !process.env.DATABASE_URL
+```
+- Automatically falls back to mock data when database unavailable
+- Allows development without database connection
 
--- CommunityConnections table
-CREATE INDEX idx_community_connections_community_status ON CommunityConnections(communityId, status);
-CREATE INDEX idx_community_connections_join_date ON CommunityConnections(joinDate);
+### Error Handling Strategy
+```typescript
+try {
+  // Real database query
+  const data = await db.communities.findMany(...)
+  return data
+} catch (error) {
+  console.error('Database error:', error)
+  return getMockData() // Graceful fallback
+}
+```
+- All functions include try-catch with mock data fallbacks
+- Ensures dashboard always displays data
 
--- EventTag table
-CREATE INDEX idx_event_tag_event ON EventTag(eventId);
-CREATE INDEX idx_event_tag_tag ON EventTag(tagId);
+### Tag System Integration
+- **Real Tags**: Extracted from actual events and their tag relationships
+- **Category Mapping**: Intelligent categorization based on tag content
+- **Deduplication**: Ensures unique tags across all community events
 
--- Tags table
-CREATE INDEX idx_tags_name ON Tags(name);
+### Performance Considerations
+- **Pagination**: Implemented for large member lists
+- **Selective Queries**: Only fetch required fields and relationships
+- **Caching**: Consider implementing for frequently accessed data
 
--- Logs table
-CREATE INDEX idx_logs_actor_created ON Logs(actorId, createdAt);
-CREATE INDEX idx_logs_created_action ON Logs(createdAt, actionType);
+## 🔄 Future Enhancements
 
--- Subscriptions table
-CREATE INDEX idx_subscriptions_status ON Subscriptions(isSubscriptionCancelled, paymentStatus);
-CREATE INDEX idx_subscriptions_community ON Subscriptions(communityId);
+### Real Activity Tracking
+- Implement actual post/comment counting
+- Track member engagement metrics
+- Calculate real contribution scores
 
--- PlanTrials table
-CREATE INDEX idx_plan_trials_end ON PlanTrials(trialEnd);
+### Advanced Analytics
+- Time-series analysis for growth trends
+- Engagement pattern recognition
+- Predictive analytics for community health
+
+### Database Optimization
+- Add indexes for frequently queried fields
+- Consider materialized views for complex aggregations
+- Implement caching layer for expensive calculations
+
+## 📊 Data Flow Summary
+
+```
+Database (Prisma) → Analytics Service → API Routes → React Components
+     ↓                    ↓                ↓              ↓
+Real/Mock Data → Calculations/Mapping → JSON Response → UI Display
 ```
 
-## Future Enhancements
-
-### Real-Time Data
-- Consider WebSocket connections for live updates
-- Redis caching for frequently accessed metrics
-- Background job for pre-calculating heavy aggregations
-
-### Advanced Community Analytics
-- Cohort analysis for member retention
-- Community health scoring algorithm
-- Predictive analytics for community growth
-- Network analysis of community interactions
-
-### Enhanced Tag System
-- Machine learning for automatic tag suggestions
-- Tag trend analysis and recommendations
-- Cross-community tag analytics
-- Tag-based event recommendations
-
-### Monitoring Integration
-- DataDog/New Relic for platform health metrics
-- Alert thresholds for critical metrics
-- Automated anomaly detection
-
-## Data Sources Split (Hybrid Approach)
-
-### PostgreSQL (Neon/Vercel)
-- Core user data (Users, UserProfiles)
-- Community data (Communities, CommunityConnections)
-- Event data (Events, EventParticipants, EventTag, Tags)
-- Subscription data (Subscriptions, Plans, PlanTrials)
-- System logs (Logs)
-
-### Mixpanel (Event Tracking)
-- User behavior analytics
-- Feature usage tracking
-- Conversion funnel analysis
-- A/B testing results
-- Community engagement events
-- Event interaction tracking
-
-This hybrid approach allows for:
-- Transactional data in PostgreSQL for consistency
-- Behavioral analytics in Mixpanel for advanced insights
-- Real-time event tracking without impacting main database
-- Specialized analytics tools for each use case 
+This architecture ensures consistent data flow and allows for easy switching between real and mock data during development. 
