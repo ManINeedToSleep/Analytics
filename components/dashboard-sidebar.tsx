@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, Bell, Building, ChevronDown, Database, LayoutDashboard, LogOut, Mail, Settings, Users, Zap, Calendar, Sparkles } from 'lucide-react'
+import { BarChart3, Bell, Building, ChevronDown, Database, LayoutDashboard, LogOut, Mail, Settings, Users, Zap, Calendar, Sparkles, Trophy, Globe, ChevronRight } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
@@ -27,6 +30,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { FadeIn } from "@/components/ui/fade-in"
 
 export function DashboardSidebar() {
@@ -40,8 +48,19 @@ export function DashboardSidebar() {
     },
     {
       title: "Communities",
-      href: "/dashboard/communities",
       icon: Building,
+      items: [
+        {
+          title: "Leaderboard",
+          href: "/dashboard/leaderboard",
+          icon: Trophy,
+        },
+        {
+          title: "Analytics",
+          href: "/dashboard/communities", 
+          icon: BarChart3,
+        },
+      ]
     },
     {
       title: "Users & Profiles",
@@ -112,21 +131,58 @@ export function DashboardSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item, index) => (
-                <FadeIn key={item.href} delay={200 + index * 50}>
+                <FadeIn key={item.title} delay={200 + index * 50}>
                   <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={pathname === item.href} 
-                      tooltip={item.title}
-                      className="group transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/20 data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-500/20 data-[active=true]:to-blue-500/20 data-[active=true]:border-r-2 data-[active=true]:border-purple-500"
-                    >
-                      <Link href={item.href} className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
-                        <span className="group-hover:translate-x-1 transition-transform duration-300">
-                          {item.title}
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
+                    {item.items ? (
+                      <Collapsible className="group/collapsible">
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            tooltip={item.title}
+                            className="group transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/20"
+                          >
+                            <item.icon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+                            <span className="group-hover:translate-x-1 transition-transform duration-300">
+                              {item.title}
+                            </span>
+                            <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.items.map((subItem) => (
+                              <SidebarMenuSubItem key={subItem.href}>
+                                <SidebarMenuSubButton 
+                                  asChild 
+                                  isActive={pathname === subItem.href}
+                                  className="group transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/20 data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-500/20 data-[active=true]:to-blue-500/20"
+                                >
+                                  <Link href={subItem.href} className="flex items-center gap-3">
+                                    <subItem.icon className="h-3 w-3 group-hover:scale-110 transition-transform duration-300" />
+                                    <span className="group-hover:translate-x-1 transition-transform duration-300">
+                                      {subItem.title}
+                                    </span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ) : (
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={pathname === item.href} 
+                        tooltip={item.title}
+                        className="group transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900/20 data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-500/20 data-[active=true]:to-blue-500/20 data-[active=true]:border-r-2 data-[active=true]:border-purple-500"
+                      >
+                        <Link href={item.href!} className="flex items-center gap-3">
+                          <item.icon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+                          <span className="group-hover:translate-x-1 transition-transform duration-300">
+                            {item.title}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    )}
                   </SidebarMenuItem>
                 </FadeIn>
               ))}
@@ -204,7 +260,7 @@ export function DashboardSidebar() {
                   <span>Notifications</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
+                <DropdownMenuItem className="hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors text-red-600 dark:text-red-400">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
@@ -213,6 +269,7 @@ export function DashboardSidebar() {
           </div>
         </FadeIn>
       </SidebarFooter>
+      
       <SidebarRail />
     </Sidebar>
   )

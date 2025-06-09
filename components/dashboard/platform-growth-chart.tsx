@@ -1,29 +1,50 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp } from 'lucide-react'
 import { cn } from "@/lib/utils"
-
-// Mock data - in a real app, this would come from an API
-const platformData = [
-  { month: "Jan", users: 28450, communities: 89, events: 234 },
-  { month: "Feb", users: 31200, communities: 95, events: 267 },
-  { month: "Mar", users: 34800, communities: 102, events: 289 },
-  { month: "Apr", users: 38100, communities: 108, events: 312 },
-  { month: "May", users: 41650, communities: 115, events: 356 },
-  { month: "Jun", users: 45231, communities: 127, events: 384 },
-];
+import { PlatformGrowthData } from "@/lib/analytics-service"
 
 export function PlatformGrowthChart() {
-  const [metric, setMetric] = useState("users");
+  const [metric, setMetric] = useState("users")
+  const [data, setData] = useState<PlatformGrowthData[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const currentMetricData = platformData.map(item => ({
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch('/api/analytics/platform-growth')
+        if (!response.ok) {
+          throw new Error('Failed to fetch data')
+        }
+        const platformData = await response.json()
+        setData(platformData)
+      } catch (error) {
+        console.error('Failed to fetch platform growth data:', error)
+        // Fallback to mock data if API call fails
+        setData([
+          { month: "Jan", users: 28450, communities: 89, events: 234 },
+          { month: "Feb", users: 31200, communities: 95, events: 267 },
+          { month: "Mar", users: 34800, communities: 102, events: 289 },
+          { month: "Apr", users: 38100, communities: 108, events: 312 },
+          { month: "May", users: 41650, communities: 115, events: 356 },
+          { month: "Jun", users: 45231, communities: 127, events: 384 },
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const currentMetricData = data.map(item => ({
     month: item.month,
     value: metric === "users" ? item.users : metric === "communities" ? item.communities : item.events,
-  }));
+  }))
 
   const getMetricLabel = () => {
     if (metric === "communities") return "Communities";
@@ -33,6 +54,25 @@ export function PlatformGrowthChart() {
 
   // Define a consistent purple for the line chart as per the image
   const lineChartColor = "#8b5cf6"; // Purple color from Tailwind (purple-500)
+
+  if (loading) {
+    return (
+      <Card className="bg-neutral-900 text-white border-neutral-700/50 shadow-xl rounded-xl h-full flex flex-col">
+        <CardHeader className="flex flex-row items-start justify-between pb-4">
+          <div className="space-y-1">
+            <CardTitle className="text-lg font-semibold text-white flex items-center">
+              <TrendingUp className="mr-2 h-5 w-5 text-purple-400" />
+              Platform Growth
+            </CardTitle>
+            <CardDescription className="text-neutral-400 text-sm">Track overall platform growth metrics</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-grow flex items-center justify-center">
+          <div className="text-neutral-400">Loading platform data...</div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="bg-neutral-900 text-white border-neutral-700/50 shadow-xl rounded-xl h-full flex flex-col">
@@ -67,16 +107,16 @@ export function PlatformGrowthChart() {
                 <stop offset="95%" stopColor={lineChartColor} stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#404040" /> {/* Neutral-700 */}
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#404040" />
             <XAxis 
               dataKey="month" 
-              stroke="#a3a3a3" /* Neutral-400 */
+              stroke="#a3a3a3"
               fontSize={12} 
               tickLine={false} 
               axisLine={false}
             />
             <YAxis
-              stroke="#a3a3a3" /* Neutral-400 */
+              stroke="#a3a3a3"
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -86,15 +126,15 @@ export function PlatformGrowthChart() {
             <RechartsTooltip
               cursor={{ stroke: lineChartColor, strokeWidth: 1, strokeDasharray: "3 3" }}
               contentStyle={{ 
-                backgroundColor: "hsl(var(--background-accent, 240 5.9% 10%))", // Darker accent background for tooltip
+                backgroundColor: "hsl(var(--background-accent, 240 5.9% 10%))",
                 borderColor: "hsl(var(--border-accent, 240 3.7% 15.9%))",
                 borderRadius: "0.5rem",
                 color: "hsl(var(--foreground-accent, 0 0% 98%))",
-                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)" // Subtle shadow
+                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)"
               }}
               labelStyle={{ color: "hsl(var(--muted-foreground, 240 3.8% 46.1%))", marginBottom: '4px' }}
               itemStyle={{ color: "hsl(var(--foreground-accent, 0 0% 98%))" }}
-              formatter={(value: number, name: string) => [`${value.toLocaleString()} ${getMetricLabel().slice(0,-1)}`, null]} // Remove 's' from label
+              formatter={(value: number, name: string) => [`${value.toLocaleString()} ${getMetricLabel().slice(0,-1)}`, null]}
               labelFormatter={(label: string) => `Month: ${label}`}
             />
             <Line
@@ -112,9 +152,8 @@ export function PlatformGrowthChart() {
                 r: 6, 
                 stroke: lineChartColor, 
                 strokeWidth: 2, 
-                fill: "#e9d5ff" // Lighter purple for active dot fill
+                fill: "#e9d5ff"
               }}
-             // fill="url(#chartLineGradient)" // Area fill under line (optional, can be nice)
             />
           </LineChart>
         </ResponsiveContainer>
@@ -122,9 +161,9 @@ export function PlatformGrowthChart() {
       <div className="text-center p-4 border-t border-neutral-700/50 mt-auto bg-neutral-800/30 rounded-b-xl">
         <span className="text-sm text-neutral-400">Total {getMetricLabel()}: </span>
         <span className="text-2xl font-bold text-purple-400">
-          { (metric === "users" ? platformData[platformData.length - 1].users : 
-             metric === "communities" ? platformData[platformData.length - 1].communities : 
-             platformData[platformData.length - 1].events).toLocaleString() }
+          { (metric === "users" ? data[data.length - 1]?.users : 
+             metric === "communities" ? data[data.length - 1]?.communities : 
+             data[data.length - 1]?.events)?.toLocaleString() || 0 }
         </span>
       </div>
     </Card>

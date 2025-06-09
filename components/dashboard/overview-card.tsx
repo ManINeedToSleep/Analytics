@@ -10,7 +10,7 @@ import { FadeIn } from "@/components/ui/fade-in"
 import { cn } from "@/lib/utils"
 import {
   Users, Building, UserCheck, Calendar, Activity, TrendingUp, Zap, BarChart3,
-  UserPlus, Percent, DollarSign, // Added new icons
+  UserPlus, Percent, DollarSign, Tag, // Added Tag icon
   Icon as LucideIcon // Generic Icon type
 } from "lucide-react"
 
@@ -27,6 +27,7 @@ const iconComponents: { [key: string]: LucideIcon } = {
   UserPlus,   // Added UserPlus
   Percent,    // Added Percent
   DollarSign, // Added DollarSign
+  Tag,        // Added Tag
 }
 
 interface OverviewCardProps {
@@ -36,6 +37,11 @@ interface OverviewCardProps {
   iconName: string // Changed from React.ReactNode to string key for icon map
   trend?: {
     value: number
+    isPositive: boolean
+  }
+  comparison?: {
+    value: number
+    label: string
     isPositive: boolean
   }
   delay?: number
@@ -49,6 +55,7 @@ export function OverviewCard({
   description, 
   iconName, 
   trend, 
+  comparison,
   delay = 0,
   accentColor,
   wrapperClassName, // I'm destructuring the new prop
@@ -118,6 +125,21 @@ export function OverviewCard({
                 {Math.abs(trend.value)}%
               </span>
               <span className="ml-1.5 text-neutral-500">from 2 days ago</span>
+            </div>
+          )}
+          {comparison && (
+            <div className="flex items-center text-xs mt-auto">
+              <span
+                className={cn(
+                  "font-medium",
+                  comparison.isPositive
+                    ? "text-green-400"
+                    : "text-red-400"
+                )}
+              >
+                {comparison.value.toLocaleString()}
+              </span>
+              <span className="ml-1.5 text-neutral-500">{comparison.label}</span>
             </div>
           )}
         </CardContent>
