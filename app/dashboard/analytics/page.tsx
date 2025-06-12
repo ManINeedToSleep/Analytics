@@ -6,15 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { OverviewCard } from "@/components/dashboard/overview-card"
-import { UserFlowAnalytics } from "@/components/analytics/user-flow-analytics"
-import { EngagementMetrics } from "@/components/analytics/engagement-metrics"
-import { FeatureAdoption } from "@/components/analytics/feature-adoption"
-import { CommunityLeaderboard } from "@/components/analytics/community-leaderboard"
-import { EngagementFunnel } from "@/components/analytics/engagement-funnel"
-import { AIInsightsPanels } from "@/components/analytics/ai-insights-panels"
+import { OverviewCard } from "@/components/dashboard/platform/overview-card"
+import { UserFlowAnalytics } from "@/components/analytics/user-analytics/user-flow-analytics"
+import { EngagementMetrics } from "@/components/analytics/engagement-analytics/engagement-metrics"
+import { FeatureAdoption } from "@/components/analytics/product-analytics/feature-adoption"
+import { CommunityLeaderboard } from "@/components/analytics/community-analytics/community-leaderboard"
+import { EngagementFunnel } from "@/components/analytics/engagement-analytics/engagement-funnel"
+import { AIInsightsPanels } from "@/components/analytics/ai-analytics/ai-insights-panels"
 import { FadeIn } from "@/components/ui/fade-in"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { PageHeader } from "@/components/ui/page-header"
 
 export default function AnalyticsPage() {
@@ -111,37 +111,37 @@ export default function AnalyticsPage() {
             title="Daily Active Users"
             value="8,247"
             description="Users active today"
-            icon={<Users className="h-4 w-4" />}
+            iconName="Users"
             trend={{ value: 12.3, isPositive: true }}
             delay={200}
-            gradient="purple"
+            accentColor="purple"
           />
           <OverviewCard
             title="7-Day Retention"
             value="73.2%"
             description="Users returning after 7 days"
-            icon={<TrendingUp className="h-4 w-4" />}
+            iconName="TrendingUp"
             trend={{ value: 5.8, isPositive: true }}
             delay={250}
-            gradient="blue"
+            accentColor="blue"
           />
           <OverviewCard
             title="Feature Adoption"
             value="84.6%"
             description="Users using core features"
-            icon={<Activity className="h-4 w-4" />}
+            iconName="Activity"
             trend={{ value: 8.2, isPositive: true }}
             delay={300}
-            gradient="green"
+            accentColor="green"
           />
           <OverviewCard
             title="Churn Rate"
             value="4.1%"
             description="Users not returning (30d)"
-            icon={<Target className="h-4 w-4" />}
+            iconName="Target"
             trend={{ value: -2.3, isPositive: true }}
             delay={350}
-            gradient="amber"
+            accentColor="amber"
           />
         </div>
 

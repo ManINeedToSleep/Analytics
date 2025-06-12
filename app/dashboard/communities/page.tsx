@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/ui/page-header"
-import { CommunitiesOverview } from "@/components/dashboard/communities-overview"
-import { CommunityDetails } from "@/components/dashboard/community-details"
+import { CommunitiesOverview } from "@/components/dashboard/communities/communities-overview"
+import { CommunityDetails } from "@/components/dashboard/communities/community-details"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"

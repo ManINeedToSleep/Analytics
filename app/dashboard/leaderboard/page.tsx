@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/ui/page-header"
-import { CommunityLeaderboard } from "@/components/dashboard/community-leaderboard"
+import { CommunityLeaderboard } from "@/components/dashboard/communities/community-leaderboard"
 
 export default function LeaderboardPage() {
   return (

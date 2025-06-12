@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { Building, TrendingUp, Users, Zap, BarChart3 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CommunityHealthScore } from "@/components/dashboard/community-health-score"
-import { SegmentDistribution } from "@/components/dashboard/segment-distribution"
-import { EngagementChart } from "@/components/dashboard/engagement-chart"
-import { OverviewCard } from "@/components/dashboard/overview-card"
+import { CommunityHealthScore } from "@/components/dashboard/communities/community-health-score"
+import { SegmentDistribution } from "@/components/dashboard/users/segment-distribution"
+import { EngagementChart } from "@/components/dashboard/platform/engagement-chart"
+import { OverviewCard } from "@/components/dashboard/platform/overview-card"
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox"
 
 export function CommunityDetailedAnalytics() {

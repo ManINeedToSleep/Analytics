@@ -1,12 +1,40 @@
 /**
- * @file analytics-service.ts
- * @description Service for calculating platform analytics based on actual Prisma database
- * SAFETY: Uses mock data to protect production database during development
+ * Analytics Service - RYLYTICS Core Data Engine
+ * 
+ * Comprehensive analytics service that powers the RYLYTICS dashboard.
+ * Processes real-time community, user, and engagement metrics from Prisma database.
+ * 
+ * Architecture:
+ * - Production: Real database queries with complex aggregations
+ * - Development: Safe mock data to protect production environment
+ * - Dual-mode operation controlled by environment variables
+ * 
+ * Core Metrics Calculated:
+ * - Dashboard overview metrics (users, communities, events)
+ * - Platform growth trends and projections  
+ * - User engagement patterns and behaviors
+ * - Community leaderboards and rankings
+ * - Tag-based analytics and categorization
+ * - Time-series data for visualization
+ * 
+ * Performance Features:
+ * - Optimized Prisma queries with selective field loading
+ * - Calculated fields for complex metrics (engagement scores, growth rates)
+ * - Date-range filtering for historical trend analysis
+ * - Efficient aggregation pipelines for large datasets
+ * 
+ * Connected to:
+ * - /lib/database.ts (Prisma client connection)
+ * - /prisma/schema.prisma (database schema definitions)
+ * - Dashboard components for real-time data visualization
+ * - AI insights engine for trend analysis
  */
+
 import { db } from './database'
 import { startOfDay, subDays, startOfMonth, endOfMonth, subMonths, format, startOfWeek, endOfWeek, subWeeks, subHours } from 'date-fns'
 
-// Safety flag - controlled by environment variable
+// Environment-controlled data source selection
+// Protects production database during development and testing
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true' || !process.env.DATABASE_URL
 
 export interface DashboardMetrics {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { OverviewCard } from "@/components/dashboard/overview-card"
+import { OverviewCard } from "@/components/dashboard/platform/overview-card"
 import { 
   BarChart, 
   Bar, 

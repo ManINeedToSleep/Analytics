@@ -1,3 +1,43 @@
+/**
+ * AI Insights Engine Component - RYLYTICS Intelligence Hub
+ * 
+ * Advanced AI-powered analytics component that processes community and user data
+ * to generate actionable insights and recommendations for platform optimization.
+ * 
+ * Core AI Capabilities:
+ * - Community health analysis with engagement scoring
+ * - User segmentation and behavioral pattern detection  
+ * - Growth opportunity identification and trend forecasting
+ * - Automated alert generation for critical metrics
+ * - Monthly performance summaries with actionable recommendations
+ * 
+ * Data Processing:
+ * - Local AI analysis (no external API calls for privacy)
+ * - Real-time metric processing with 30-minute refresh cycles
+ * - Confidence scoring for all generated insights
+ * - Historical trend analysis for pattern recognition
+ * - Export functionality for external reporting
+ * 
+ * User Experience:
+ * - Tabbed interface for organized insight consumption
+ * - Visual confidence indicators and insight categorization
+ * - Responsive design optimized for all screen sizes
+ * - Interactive controls for manual analysis triggering
+ * - Export capabilities for CSV-based reporting
+ * 
+ * Privacy & Security:
+ * - No PII (Personally Identifiable Information) processing
+ * - Client-side analysis prevents data transmission
+ * - Mock data support for development environments
+ * - Configurable analysis intervals for resource management
+ * 
+ * Connected to:
+ * - /lib/ai-analysis.ts (core AI processing logic)
+ * - /lib/analytics-service.ts (data source integration)
+ * - /components/ui/* (UI component library)
+ * - /hooks/use-toast.ts (notification system)
+ */
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -15,7 +55,7 @@ import {
   type AIInsight,
   type CommunityMetrics 
 } from "@/lib/ai-analysis"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { FadeIn } from "@/components/ui/fade-in"
 import { cn } from "@/lib/utils"
 

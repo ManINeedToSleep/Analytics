@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { PageHeader } from "@/components/ui/page-header"
 import { aiService, type AIInsightResponse } from "@/lib/ai-service"
 

@@ -1,3 +1,34 @@
+/**
+ * Dashboard Sidebar Component - RYLYTICS Navigation Hub
+ * 
+ * Primary navigation interface for the analytics dashboard providing intuitive access
+ * to all analytics features and administrative functions.
+ * 
+ * Navigation Structure:
+ * - Main Section: Core analytics and data visualization pages
+ * - Utilities Section: Administrative tools and configuration
+ * - User Section: Profile management and authentication
+ * 
+ * Features:
+ * - Responsive collapsible design for mobile optimization
+ * - Active route highlighting with visual indicators
+ * - Nested navigation for complex feature sets
+ * - Smooth animations and hover effects
+ * - Gradient branding with RYLYTICS identity
+ * 
+ * User Experience:
+ * - Intuitive icon-based navigation
+ * - Contextual tooltips for collapsed states
+ * - Visual feedback for user interactions
+ * - Consistent with modern dashboard patterns
+ * 
+ * Connected to:
+ * - All dashboard pages via Next.js routing
+ * - /components/ui/sidebar.tsx (base sidebar mechanics)
+ * - /components/ui/fade-in.tsx (animation effects)
+ * - /hooks/use-mobile.tsx (responsive behavior)
+ */
+
 "use client"
 
 import Link from "next/link"

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
-import { OverviewCard } from "@/components/dashboard/overview-card"
+import { OverviewCard } from "@/components/dashboard/platform/overview-card"
 import { 
   LineChart, 
   Line, 
