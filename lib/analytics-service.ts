@@ -105,6 +105,7 @@ export interface CommunityLeaderboardData {
   tags: string[]
   totalPosts: number
   activeMembers: number
+  totalScore?: number // Optional field for calculated ranking score
   creator: {
     id: string
     name: string

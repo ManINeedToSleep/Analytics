@@ -213,79 +213,130 @@ export function CommunityDetails({ communityId }: CommunityDetailsProps) {
 
       {/* Community Header */}
       <Card className="bg-neutral-900 text-white border-neutral-700/50 shadow-xl rounded-xl overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-purple-600 to-pink-600 relative">
-          <div className="absolute inset-0 bg-black/20" />
+        {/* Enhanced Header Background */}
+        <div className="h-40 bg-gradient-to-br from-purple-600 via-pink-600 to-indigo-600 relative">
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+          {/* Decorative Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-4 right-4 w-32 h-32 rounded-full border border-white/20"></div>
+            <div className="absolute top-8 right-8 w-24 h-24 rounded-full border border-white/10"></div>
+            <div className="absolute bottom-4 left-4 w-20 h-20 rounded-full border border-white/15"></div>
+          </div>
         </div>
-        <CardContent className="p-6 -mt-16 relative">
-          <div className="flex flex-col md:flex-row md:items-end md:space-x-6">
-            <Avatar className="w-24 h-24 border-4 border-neutral-900">
-              <AvatarImage src={community.avatar} alt={community.name} />
-              <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-2xl font-bold">
-                {community.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+        
+        <CardContent className="p-8 -mt-20 relative">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:space-x-8">
+            {/* Enhanced Avatar Section */}
+            <div className="flex-shrink-0 mb-6 lg:mb-0">
+              <Avatar className="w-32 h-32 border-4 border-neutral-900 shadow-2xl">
+                <AvatarImage src={community.avatar} alt={community.name} className="object-cover" />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-3xl font-bold">
+                  {community.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            </div>
             
-            <div className="mt-4 md:mt-0 flex-1">
-              <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-2xl font-bold text-white">{community.name}</h1>
-                {community.verified && (
-                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    <Shield className="mr-1 h-3 w-3" />
-                    Verified
-                  </Badge>
-                )}
-                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+            {/* Enhanced Content Section */}
+            <div className="flex-1 min-w-0">
+              {/* Title and Badges Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div className="flex items-center flex-wrap gap-3 mb-3 sm:mb-0">
+                  <h1 className="text-3xl font-bold text-white truncate">{community.name}</h1>
+                  {community.verified && (
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 px-3 py-1">
+                      <Shield className="mr-1 h-4 w-4" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 px-3 py-1 w-fit">
                   {community.category}
                 </Badge>
               </div>
+
+              {/* Description */}
               {community.description && (
-                <p className="text-neutral-400 mb-4 max-w-2xl">{community.description}</p>
+                <p className="text-neutral-300 mb-6 max-w-4xl leading-relaxed text-base">
+                  {community.description}
+                </p>
               )}
               
-              {/* Creator Information */}
-              <div className="mb-4 p-3 rounded-lg bg-neutral-800/30">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="w-8 h-8">
+              {/* Enhanced Creator Information */}
+              <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-neutral-800/50 to-neutral-700/30 border border-neutral-700/50">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="w-12 h-12 border-2 border-neutral-600">
                     <AvatarImage src={community.creator.avatar} alt={community.creator.name} />
-                    <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white font-semibold">
                       {community.creator.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="text-sm text-neutral-400">Created by</div>
-                    <div className="font-medium text-white">{community.creator.name}</div>
+                    <div className="text-sm text-neutral-400 font-medium">Created by</div>
+                    <div className="text-lg font-semibold text-white">{community.creator.name}</div>
+                  </div>
+                  <div className="ml-auto">
+                    <Crown className="h-6 w-6 text-yellow-400" />
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                <div className="flex items-center text-neutral-300">
-                  <Users className="mr-2 h-4 w-4 text-purple-400" />
-                  {community.memberCount.toLocaleString()} members
+              {/* Enhanced Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                <div className="flex items-center space-x-3 p-3 rounded-lg bg-neutral-800/40 border border-neutral-700/30">
+                  <div className="p-2 rounded-lg bg-purple-500/20">
+                    <Users className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-neutral-400">Members</div>
+                    <div className="text-xl font-bold text-white">{community.memberCount.toLocaleString()}</div>
+                  </div>
                 </div>
-                <div className="flex items-center text-neutral-300">
-                  <Calendar className="mr-2 h-4 w-4 text-green-400" />
-                  {community.eventsCreated} events
+                
+                <div className="flex items-center space-x-3 p-3 rounded-lg bg-neutral-800/40 border border-neutral-700/30">
+                  <div className="p-2 rounded-lg bg-green-500/20">
+                    <Calendar className="h-5 w-5 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-neutral-400">Events</div>
+                    <div className="text-xl font-bold text-white">{community.eventsCreated}</div>
+                  </div>
                 </div>
-                <div className="flex items-center text-neutral-300">
-                  <Activity className="mr-2 h-4 w-4 text-blue-400" />
-                  {community.engagement.toFixed(1)}% engagement
+                
+                <div className="flex items-center space-x-3 p-3 rounded-lg bg-neutral-800/40 border border-neutral-700/30">
+                  <div className="p-2 rounded-lg bg-blue-500/20">
+                    <Activity className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-neutral-400">Engagement</div>
+                    <div className="text-xl font-bold text-white">{community.engagement.toFixed(1)}%</div>
+                  </div>
                 </div>
               </div>
 
-              {/* Tags */}
+              {/* Enhanced Tags Section */}
               {community.tags.length > 0 && (
-                <div className="mt-4">
+                <div className="border-t border-neutral-700/50 pt-6">
+                  <div className="flex items-center mb-3">
+                    <Tag className="h-4 w-4 text-neutral-400 mr-2" />
+                    <span className="text-sm font-medium text-neutral-400">Popular Topics</span>
+                  </div>
                   <div className="flex flex-wrap gap-2">
-                    {community.tags.slice(0, 6).map((tag, index) => (
-                      <Badge key={index} variant="outline" className="bg-neutral-800 border-neutral-600 text-neutral-300">
-                        <Tag className="mr-1 h-3 w-3" />
+                    {community.tags.slice(0, 8).map((tag, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="outline" 
+                        className="bg-neutral-800/60 border-neutral-600/50 text-neutral-300 hover:bg-neutral-700/60 transition-colors px-3 py-1"
+                      >
                         {tag}
                       </Badge>
                     ))}
-                    {community.tags.length > 6 && (
-                      <Badge variant="outline" className="bg-neutral-800 border-neutral-600 text-neutral-400">
-                        +{community.tags.length - 6} more
+                    {community.tags.length > 8 && (
+                      <Badge 
+                        variant="outline" 
+                        className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30 text-purple-300 px-3 py-1"
+                      >
+                        +{community.tags.length - 8} more
                       </Badge>
                     )}
                   </div>

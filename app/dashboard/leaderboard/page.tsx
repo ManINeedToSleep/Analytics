@@ -6,7 +6,7 @@ export default function LeaderboardPage() {
     <div className="flex-1 space-y-6 p-8 pt-6">
       <PageHeader 
         title="Community Leaderboard"
-        description="Top performing communities ranked by engagement, growth, and activity"
+        description="Communities ranked by member count and event activity • 15 per page • 3 pages preloaded for seamless navigation"
       />
       <CommunityLeaderboard />
     </div>

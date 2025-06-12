@@ -1,6 +1,8 @@
 import { PageHeader } from "@/components/ui/page-header"
 import { CommunitiesOverview } from "@/components/dashboard/communities/communities-overview"
+import { EnhancedCommunitiesOverview } from "@/components/dashboard/communities/enhanced-communities-overview"
 import { CommunityDetails } from "@/components/dashboard/communities/community-details"
+import { EnhancedCommunityDetails } from "@/components/dashboard/communities/enhanced-community-details"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -31,7 +33,7 @@ export default async function CommunitiesPage({ searchParams }: CommunitiesPageP
             </Link>
           }
         />
-        <CommunityDetails communityId={id} />
+        <EnhancedCommunityDetails communityId={id} />
       </div>
     )
   }
@@ -43,7 +45,7 @@ export default async function CommunitiesPage({ searchParams }: CommunitiesPageP
         title="Communities Analytics"
         description="Comprehensive overview of all community data, growth, and engagement metrics"
       />
-      <CommunitiesOverview />
+      <EnhancedCommunitiesOverview />
     </div>
   )
 }

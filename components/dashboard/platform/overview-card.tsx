@@ -38,6 +38,8 @@ interface OverviewCardProps {
   trend?: {
     value: number
     isPositive: boolean
+    label?: string
+    showAsPercentage?: boolean
   }
   comparison?: {
     value: number
@@ -122,9 +124,11 @@ export function OverviewCard({
                 )}
               >
                 {trend.isPositive ? "+" : ""}
-                {Math.abs(trend.value)}%
+                {trend.showAsPercentage ? `${Math.abs(trend.value)}%` : Math.abs(trend.value).toLocaleString()}
               </span>
-              <span className="ml-1.5 text-neutral-500">from 2 days ago</span>
+              <span className="ml-1.5 text-neutral-500">
+                {trend.label || "from 2 days ago"}
+              </span>
             </div>
           )}
           {comparison && (
